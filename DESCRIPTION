@@ -1,0 +1,21 @@
+Package: gaston
+Type: Package
+Title: Genetic Data Manipulation (Quality Control, GRM and LD
+        Computations, PCA), Linear Mixed Models (AIREML Algorithm),
+        Association Testing
+Version: 1.0
+Date: 2015-10-01
+Encoding: UTF-8
+Author: Hervé Perdry & Claire Dandine-Roulland
+Maintainer: Hervé Perdry <herve.perdry@u-psud.fr>
+Description: Manipulation of genetic data (SNPs), computation of Genetic Relationship Matrix, Linkage Disequilibrium, etc. Efficient algorithms for Linear Mixed Model (AIREML, diagonalisation trick).
+License: GPL-3
+LinkingTo: Rcpp,RcppParallel,RcppEigen
+Depends: R (>= 2.10), Rcpp, RcppParallel, methods, WhopGenome,
+        LDheatmap
+NeedsCompilation: yes
+LazyLoad: yes
+LazyData: yes
+Packaged: 2015-10-01 12:31:16 UTC; rv
+Repository: CRAN
+Date/Publication: 2015-10-02 00:04:34

@@ -1,0 +1,22 @@
+import(Rcpp)
+import(RcppParallel)
+import(methods)
+import(WhopGenome)
+import(LDheatmap)
+
+importFrom("grDevices", "heat.colors")
+importFrom("graphics", "contour", "image")
+importFrom("stats", "pchisq", "quantile", "rnorm")
+importFrom("utils", "read.table", "write.table")
+
+useDynLib(gaston)
+
+exportClasses(bed.matrix)
+exportMethods(head,  as.matrix, as.bed.matrix, "[", "%*%", dim, p, 'p<-', mu, 'mu<-', sigma, 'sigma<-', standardize, 'standardize<-', cbind, rbind)
+
+export(GRM, set.stats, set.hwe, bed.loadings, LD, LD.thin)
+export(select.inds, select.snps)
+export(read.bed.matrix, write.bed.matrix, read.vcf)
+export(random.pm, lmm.simu, lmm.aireml, lmm.diago, lmm.diago.likelihood, lik.contour)
+export(association.test)
+
