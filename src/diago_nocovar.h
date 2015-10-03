@@ -23,7 +23,7 @@ double diago_likelihood(double h2, int p, const Eigen::MatrixBase<T1> & Y, const
   v = yP0y / (n-p);
   Rcout << "h2 = " << h2 << ", v = " << v << "\n";
 
-  return -0.5*(V0b.array().log().sum() + (n-p)*log(yP0y) + (n-p)*(1-log(n-p)) );
+  return -0.5*(V0b.array().log().sum() + (n-p)*log(yP0y) + (n-p)*(1-log((double)(n-p))) );
 }
 
 template<typename T1, typename T3>

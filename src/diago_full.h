@@ -32,7 +32,7 @@ double diago_full_likelihood(double h2, int p, const Eigen::MatrixBase<T1> & Y, 
   yP0y = P0y.dot( Y.bottomRows(n-p).col(0) );
   v = yP0y / n;
 
-  return -0.5*(V0.array().log().sum() +  n*log(yP0y) + n*(1 - log(n)) ); 
+  return -0.5*(V0.array().log().sum() +  n*log(yP0y) + n*(1 - log((double) n)) ); 
 }
 
 template<typename T1, typename T2, typename T3>

@@ -1,4 +1,4 @@
-03f0179691c69d6ad02f2f295d766c78 *DESCRIPTION
+f73f0316b59a918dfb5aa0a9585d31be *DESCRIPTION
 4b73f989eda01241bfd1e49742868f46 *NAMESPACE
 9ccbeab8d31e0deba1531bb99a055d6a *R/bm.r
 7122bdf81eb677335b7b510afa4e8191 *R/bm_bind.r
@@ -24,7 +24,7 @@ a58cbdb9a4eae4ad144ebde0d30aec13 *data/TTN.rda
 abf8652f46e0022f2cd2b5ff8efd424c *data/datalist
 d4197709c256cfff04f3921809a7e1b0 *inst/doc/gaston.R
 7c490c083d89db411662e58fef416222 *inst/doc/gaston.Rnw
-aed029a5c5d81bac849c60e39680cb27 *inst/doc/gaston.pdf
+6b980b25d568bd76bafd257573733b69 *inst/doc/gaston.pdf
 12c31f58f990024d8b77c3b0c9dc86cc *inst/extdata/LCT.bed
 2273b75e59551e464ae55f404d2887ac *inst/extdata/LCT.bim
 3b1a418c594a35920264a5743580180f *inst/extdata/LCT.fam
@@ -60,10 +60,10 @@ e9473e30c2ff59b0a7e799c1d80d9d7f *man/read.vcf.Rd
 aa648a31769552c1f2a799852ec6d467 *src/ai-reml-1k.h
 9c0262e288d2825f3430a313850d2abe *src/ai-reml-nk-covar.h
 e1b8c6b75384ef081c046be6a8524057 *src/ai-reml-nk.h
-baec857c5443ad5a9027b8705ffa5ef2 *src/diago.h
-b8ee1fdd6b250e358c1763d913c0cdaa *src/diago_full.h
-abf237fa6311ae339a56d91a878a2412 *src/diago_full_nocovar.h
-afaba7af7b15021479ccec5c2f92988c *src/diago_nocovar.h
+24e963cbfab0941df5c412eb869a8865 *src/diago.h
+bfb56da90ddb5a3773999eadbe0d34fd *src/diago_full.h
+84ed11091277d557ae4ffa9eef95c3f4 *src/diago_full_nocovar.h
+80a54435f25c29a47241733325a98ad2 *src/diago_nocovar.h
 90252caad2215944096d77247aba815b *src/diago_wrapers.cpp
 e64c89cb02ab43f8d95730c3f98bc79a *src/diago_wrapers.h
 54dd4ad94f630b822bfc43e99d341da8 *src/export-aireml-1k.cpp

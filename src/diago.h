@@ -28,7 +28,7 @@ double diago_likelihood(double h2, int p, const Eigen::MatrixBase<T1> & Y, Eigen
   yP0y = P0y.dot( Y.bottomRows(n-p).col(0) );
   v = yP0y / (n-r-p);
 
-  return -0.5*(V0b.array().log().sum() + log_d + (n-r-p)*log(yP0y) + (n-r-p)*(1-log(n-r-p)) ); // on met le terme constant pour pouvoir comparer à celle ci-dessous
+  return -0.5*(V0b.array().log().sum() + log_d + (n-r-p)*log(yP0y) + (n-r-p)*(1-log((double)(n-r-p))) ); // on met le terme constant pour pouvoir comparer à celle ci-dessous
 }
 
 template<typename T1, typename T2, typename T3>
