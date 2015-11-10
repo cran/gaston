@@ -46,7 +46,7 @@ void AIREML1(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T3> & x, c
 
 
   bool bloc_tau = false, bloc_s2 = false;
-  bool EM;
+  bool EM = false;
 
   gr_norm = eps+1;
   int i;

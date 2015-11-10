@@ -33,7 +33,7 @@ void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> &
   }
 
   bool bloc_tau = false, bloc_s2 = false;
-  bool EM;
+  bool EM = false;
 
   gr_norm = eps+1;
   int i;

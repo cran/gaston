@@ -58,7 +58,7 @@ void AIREMLn(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T4> & x, c
   bool bloc_s2 = false;
   std::vector<bool> bloc_tau(s, false);
 
-  bool EM;
+  bool EM = false;
 
   gr_norm = eps+1;
   int i;

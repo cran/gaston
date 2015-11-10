@@ -304,7 +304,7 @@ plot(Z2 %*% u2, omega2); abline(0, 1, lty = 2, col = 3)
 
 
 ###################################################
-### code chunk number 40: gaston.Rnw:589-592
+### code chunk number 40: gaston.Rnw:601-604
 ###################################################
 eiK1 <- eigen(K1)
 fit.d <- lmm.diago(y, X, eiK1)
@@ -312,7 +312,7 @@ str(fit.d)
 
 
 ###################################################
-### code chunk number 41: gaston.Rnw:602-606
+### code chunk number 41: gaston.Rnw:614-618
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 TAU <- seq(0.5,2.5,length=50)
@@ -322,7 +322,7 @@ lik.contour(TAU, S2, lik, heat = TRUE, xlab = "tau", ylab = "sigma^2")
 
 
 ###################################################
-### code chunk number 42: gaston.Rnw:639-643
+### code chunk number 42: gaston.Rnw:651-655
 ###################################################
 set.seed(1)
 n <- 2000
@@ -331,19 +331,19 @@ y <- 2 + lmm.simu(tau = 1, sigma2 = 2, eigenK = R$eigen)$y
 
 
 ###################################################
-### code chunk number 43: gaston.Rnw:648-649
+### code chunk number 43: gaston.Rnw:660-661
 ###################################################
 fit <- lmm.diago(y, eigenK = R$eigen)
 
 
 ###################################################
-### code chunk number 44: gaston.Rnw:652-653
+### code chunk number 44: gaston.Rnw:664-665
 ###################################################
 h2 <- fit$tau/(fit$tau + fit$sigma)
 
 
 ###################################################
-### code chunk number 45: gaston.Rnw:663-666
+### code chunk number 45: gaston.Rnw:675-678
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 H2 <- seq(0,1,length=51)
@@ -352,14 +352,14 @@ plot(H2, exp(lik$likelihood-max(lik$likelihood)), type="l", yaxt="n", ylab="like
 
 
 ###################################################
-### code chunk number 46: gaston.Rnw:674-676
+### code chunk number 46: gaston.Rnw:686-688
 ###################################################
 PC <- sweep(R$eigen$vectors, 2, sqrt(R$eigen$values), "*")
 y1 <- 2 + PC[,1:2] %*% c(5,5) + lmm.simu(tau = 1, sigma2 = 2, eigenK = R$eigen)$y
 
 
 ###################################################
-### code chunk number 47: gaston.Rnw:680-684
+### code chunk number 47: gaston.Rnw:692-696
 ###################################################
 fit0 <- lmm.diago(y1, eigenK = R$eigen)
 fit0$tau/(fit0$tau+fit0$sigma2)
@@ -368,7 +368,7 @@ fit10$tau/(fit10$tau+fit10$sigma2)
 
 
 ###################################################
-### code chunk number 48: gaston.Rnw:708-711
+### code chunk number 48: gaston.Rnw:720-723
 ###################################################
 data(AGT)
 x <- set.stats(as.bed.matrix(AGT.gen, AGT.fam, AGT.bim))
@@ -376,21 +376,21 @@ standardize(x) <- 'mu'
 
 
 ###################################################
-### code chunk number 49: gaston.Rnw:715-717
+### code chunk number 49: gaston.Rnw:727-729
 ###################################################
 set.seed(1)
 R <- random.pm(nrow(x))
 
 
 ###################################################
-### code chunk number 50: gaston.Rnw:721-723
+### code chunk number 50: gaston.Rnw:733-735
 ###################################################
 y <- 2 + x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) +
      lmm.simu(tau = 0.3, sigma2 = 1, eigenK=R$eigen)$y
 
 
 ###################################################
-### code chunk number 51: gaston.Rnw:730-733
+### code chunk number 51: gaston.Rnw:742-745
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 t <- association.test(x, y, eigenK = R$eigen)
@@ -399,7 +399,7 @@ plot(-log10(t$p), xlab="SNP index", ylab = "-log(p)",
 
 
 ###################################################
-### code chunk number 52: gaston.Rnw:743-745
+### code chunk number 52: gaston.Rnw:755-757
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 lds <- LD(x, 351, c(1,ncol(x)))

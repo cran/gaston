@@ -40,7 +40,7 @@ set.seed(1)
 y <- 1 + lmm.simu(tau = 1, sigma2 = 2, eigenK = eiK)$y
 
 # Likelihood
-TAU <- seq(0.5,1.5,length=30)
+TAU <- seq(0.5,2.5,length=30)
 S2 <- seq(1,3,length=30)
 lik1 <- lmm.diago.likelihood(tau = TAU, s2 = S2, Y = y, eigenK = eiK)
 lik.contour(TAU, S2, lik1, heat = TRUE, xlab = "tau", ylab = "sigma^2")

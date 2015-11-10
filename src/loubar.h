@@ -47,7 +47,7 @@ class bar {
     #endif
     data = new double[n];
     double *pA = &A[0];
-    for(size_t i; i < n; i++) data[i] = pA[i];
+    for(size_t i = 0; i < n; i++) data[i] = pA[i];
   }
 
   bar & operator=(const bar & A) { 

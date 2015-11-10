@@ -33,7 +33,7 @@ Efficient algorithms for Linear Mixed Model (AIREML, diagonalisation trick).}
 
 \section{Genotype matrices}{
   An S4 class for genotype matrices is defined, named \code{\link{bed.matrix}}.
-  Each row correspond to an individual, and each column to a SNP. They can
+  Each row corresponds to an individual, and each column to a SNP. They can
   be read from files using \code{\link{read.bed.matrix}} 
   and saved using \code{\link{write.bed.matrix}}.  The function \code{\link{read.vcf}} reads
   VCF files; it relies on the package \code{\link[WhopGenome:WhopGenome-package]{WhopGenome}}.
@@ -84,12 +84,12 @@ Efficient algorithms for Linear Mixed Model (AIREML, diagonalisation trick).}
 
   The model considered is of the form
   \deqn{ Y = X\beta + \omega_1 + \ldots + \omega_k + \varepsilon }{ Y = X beta + omega_1 + ... + omega_k + epsilon }
-  with \eqn{ \omega_i \sim N(0,\tau_i K_i) }{omega_i ~ N(0, tau_i K_i)} for \eqn{ i \in 1, \dots,k } and
+  with \eqn{ \omega_i \sim N(0,\tau_i K_i) }{omega_i ~ N(0, tau_i K_i)} for \eqn{ i \in 1, \dots,k }{i = 1, ..., k} and
   \eqn{ \varepsilon \sim N(0,\sigma^2 I_n) }{epsilon ~ N(0, sigma^2 I_n)}.
 
   Note that very often in genetics a mixed model is written as
   \deqn{ Y = X\beta + Zu + \varepsilon }{ Y = X beta + Zu + epsilon }
-  with \eqn{Z} a standardized genotype matrix, and \eqn{u\sim N(0, \tau I_q)}. In that case, 
+  with \eqn{Z} a standardized genotype matrix, and \eqn{u\sim N(0, \tau I_q)}{u ~ N(0, tau I_q)}. In that case, 
   denoting \eqn{\omega = Zu}{omega = Zu}, \eqn{\omega \sim N(0, \tau ZZ')}{omega ~ N(0,tau ZZ')}
   and letting \eqn{K=ZZ'} we get a mixed model of the previous form.
 

@@ -579,11 +579,23 @@ plot(Z2 %*% u2, omega2); abline(0, 1, lty = 2, col = 3)
   
   \subsection{Model fitting with the diagonalization trick}
 
-  In the case where there is only one vector of random effects, the
+  In the case where there is only one vector of random effects ($k = 1)$, the
   diagonalization trick uses the eigen decomposition of $K_1$ to speed up the 
-  computation of the model restricted likelihood, which allows to use a generic 
+  computation of the restricted likelihood, which allows to use a generic 
   algorithm to maximize it. Of course, the eigen decomposition of $K_1$ needs 
-  to be computed beforehand, which induces a small overhead. 
+  to be computed beforehand, which induces an overhead. 
+
+  The trick relies on a transformation of the data which leads to a diagonal variance matrix for $Y$. 
+  The computation of a the restricted likelihood
+  involves the computation of the inverse of this matrix, which is then easy to compute.
+  Write the eigen decomposition of $K_1$ as $K_1 = U \Sigma^2 U'$ with $\Sigma^2$
+  a diagonal matrix of positive eigenvalues, and $U$ an orthogonal matrix.
+  If we let $\tilde Y = U'Y$, $\tilde X = U'X$, $\tilde \omega_1 = U' \omega_1$, and
+  $\tilde\varepsilon = U' \varepsilon$, we have
+  $$ \tilde Y = \tilde X\beta + \tilde \omega_1 + \tilde \varepsilon $$
+  with $\tilde \omega_1 \sim N\left(0,\tau \Sigma^2\right)$ and $ \tilde\varepsilon \sim N(0,\sigma^2 I_n) $.
+  As stated above, $\mathrm{var}\left(\tilde Y\right) = \tau \Sigma^2 + \sigma^2 I_n$ is diagonal.
+
   We fit the first model again:
  
 <<>>=

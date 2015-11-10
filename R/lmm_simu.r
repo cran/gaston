@@ -1,5 +1,5 @@
 lmm.simu <- function(tau, sigma2, K, eigenK = eigen(K), X, beta) {
-  if(any(eigenK$values < -1e-7))
+  if(any(eigenK$values < -1e-5))
     stop("K is not positive")
   eigenK$values[eigenK$values < 0] <- 0
   # partie fixe

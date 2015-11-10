@@ -3,7 +3,7 @@ Type: Package
 Title: Genetic Data Manipulation (Quality Control, GRM and LD
         Computations, PCA), Linear Mixed Models (AIREML Algorithm),
         Association Testing
-Version: 1.1
+Version: 1.2
 Date: 2015-10-01
 Encoding: UTF-8
 Author: Hervé Perdry & Claire Dandine-Roulland
@@ -16,6 +16,6 @@ Depends: R (>= 2.10), Rcpp, RcppParallel, methods, WhopGenome,
 NeedsCompilation: yes
 LazyLoad: yes
 LazyData: yes
-Packaged: 2015-10-02 21:05:31 UTC; rv
+Packaged: 2015-11-09 15:47:44 UTC; rv
 Repository: CRAN
-Date/Publication: 2015-10-03 01:14:09
+Date/Publication: 2015-11-10 11:19:21

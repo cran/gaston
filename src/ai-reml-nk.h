@@ -45,7 +45,7 @@ void AIREMLn_nofix(const Eigen::MatrixBase<T1> & y, const std::vector<T2,A> & K,
   bool bloc_s2 = false;
   std::vector<bool> bloc_tau(s, false);
 
-  bool EM;
+  bool EM = false;
 
   gr_norm = eps+1;
   int i;
