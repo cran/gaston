@@ -75,10 +75,10 @@ set.hwe <- function(x, method = c("chisquare", "exact"), verbose = getOption("ga
   }
   method <- match.arg(method)
   if(method == 'chisquare') {
-    if(verbose) cat("Computing basic HW chi-square p-values\n")
+    if(verbose) cat("Computing HW chi-square p-values\n")
     hwe_ <- .Call('gg_hwe_chi', PACKAGE = 'gaston', x@snps$N0, x@snps$N1, x@snps$N2)
   } else {
-    if(verbose) cat("Computing basic HW exact test p-values\n")
+    if(verbose) cat("Computing HW exact test p-values\n")
     hwe_ <- .Call('gg_hwe', PACKAGE = 'gaston', x@snps$N0, x@snps$N1, x@snps$N2)
   }
   x@snps$hwe <- hwe_

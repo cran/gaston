@@ -1,0 +1,9 @@
+
+1.1: corrected C++ code (compilation errors on some distributions)
+1.2: kinhsip matrix is now in single precision (faster) 
+     various minor changes
+1.3: corrected bug in HWE chi square (monomorphic SNP) 
+     select.snps and select.inds (negative indices, presence of NAs)
+1.3.1: suppressed various __attribute__ ((aligned(16))) in m4_kinship*.cpp
+       which seemed to be causing an (intermittent) bug (?!)
+

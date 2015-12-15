@@ -21,10 +21,10 @@ struct paraKin_p : public Worker {
   const size_t true_ncol;
   const Ktype n;
   // output
-  Ktype * K __attribute__ ((aligned(16)));
+  Ktype * K ;
   
   // constructeurs
-  paraKin_p(matrix4 & A, std::vector<double> p) : A(A), p(p), n(A.nrow-1),  // ******* BEWARE THE nrow-1 !!! ***********
+  paraKin_p(matrix4 & A, std::vector<double> p) : A(A), p(p), n( (Ktype) A.nrow-1),  // ******* BEWARE THE nrow-1 !!! ***********
         ncol(A.ncol), true_ncol(A.true_ncol) { 
           K = new Ktype[(ncol*(ncol+1))/2];
           std::fill(K, K+(ncol*(ncol+1))/2, 0);
@@ -41,7 +41,7 @@ struct paraKin_p : public Worker {
 
   // worker !
   void operator()(size_t beg, size_t end) {
-    Ktype gg[16] __attribute__ ((aligned(16)));
+    Ktype gg[16];
     gg[3] = gg[7] = gg[11] = gg[12] = gg[13] = gg[14] = gg[15] = 0;
     for(size_t i = beg; i < end; i++) {
       Ktype p_ = (Ktype) p[i]; 
@@ -62,7 +62,7 @@ struct paraKin_p : public Worker {
       for(size_t j1 = 0; j1 < true_ncol; j1++) {
         char x1 = dd[j1];
         for(unsigned int ss1 = 0; (ss1 < 4) && (4*j1 + ss1 < ncol); ss1++) {
-          Ktype * ggg __attribute__ ((aligned(16))) = gg + ((x1&3)<<2);
+          Ktype * ggg = gg + ((x1&3)<<2);
           for(size_t j2 = 0; j2 < j1; j2++) {
             char x2 = dd[j2];
             for(unsigned int ss2 = 0; ss2 < 4; ss2++) {

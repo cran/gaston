@@ -6,6 +6,7 @@
 double hwe_chi0(int a0, int a1, int a2) {
   int n = a0 + a1 + a2;
   double p = (double) (2*a2+a1) / (2*n);
+  if(p == 0 || p == 1) return 1;
   double e0 = n*(1-p)*(1-p), e1 = 2*n*p*(1-p), e2 = n*p*p;
   double chi = (a0-e0)*(a0-e0)/e0 + (a1-e1)*(a1-e1)/e1 + (a2-e2)*(a2-e2)/e2;
   return R::pchisq(chi, 1., 0, 0);
