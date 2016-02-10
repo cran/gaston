@@ -22,10 +22,10 @@ using namespace RcppParallel;
                               3 -> 2    11 -> 10 
 
   on peut le faire simultanément sur les 8 génotypes contenus
-  dans un char
+  dans un uint8_t
 ***/
 
-char bedc[256] = {
+uint8_t bedc[256] = {
   0,   3,   1,   2,  12,  15,  13,  14,   4,   7,   5,   6,   8,  11,   9,  10, 
  48,  51,  49,  50,  60,  63,  61,  62,  52,  55,  53,  54,  56,  59,  57,  58, 
  16,  19,  17,  18,  28,  31,  29,  30,  20,  23,  21,  22,  24,  27,  25,  26, 
@@ -44,7 +44,7 @@ char bedc[256] = {
 160, 163, 161, 162, 172, 175, 173, 174, 164, 167, 165, 166, 168, 171, 169, 170};
 
 
-char tobed[256] = {
+uint8_t tobed[256] = {
   0,   2,   3,   1,   8,  10,  11,   9,  12,  14,  15,  13,   4,   6,   7,   5,
  32,  34,  35,  33,  40,  42,  43,  41,  44,  46,  47,  45,  36,  38,  39,  37,
  48,  50,  51,  49,  56,  58,  59,  57,  60,  62,  63,  61,  52,  54,  55,  53,
@@ -65,14 +65,14 @@ char tobed[256] = {
 // bed magic numbers : 108 27 1
 
 XPtr<matrix4> read_bed_file(CharacterVector filename, int n_ind, int n_snp) {
-  std::ifstream file(filename[0], std::ios::in|std::ios::binary);
+  std::ifstream file(filename[0], std::ifstream::binary);
   if(!file.is_open()) {
     Rf_error("Cannot open file");
   }
-  char m1, m2, m3;
-  file.read(&m1, 1);
-  file.read(&m2, 1);
-  file.read(&m3, 1);
+  uint8_t m1, m2, m3;
+  file.read(reinterpret_cast<char *>(&m1), 1);
+  file.read(reinterpret_cast<char *>(&m2), 1);
+  file.read(reinterpret_cast<char *>(&m3), 1);
   if(m1 != 108 || m2 != 27) {
     Rf_error("Not a bed file");
   }
@@ -80,8 +80,8 @@ XPtr<matrix4> read_bed_file(CharacterVector filename, int n_ind, int n_snp) {
     Rf_error("Not a bed file in SNP major mode");
   }
   XPtr<matrix4> p_A(new matrix4(n_snp, n_ind));
-  char b;
-  char bordermask;
+  uint8_t b;
+  uint8_t bordermask;
   switch(4*p_A->true_ncol - n_ind) {
     case 0:
       bordermask = 0;
@@ -100,8 +100,8 @@ XPtr<matrix4> read_bed_file(CharacterVector filename, int n_ind, int n_snp) {
   }
   for(int i = 0; i < n_snp; i++) {
     for(int j = 0; j < p_A->true_ncol; j++) {
-      file.read(&b,1);
-      p_A->data[i][j] = bedc[ (unsigned char) b ];
+      file.read(reinterpret_cast<char *> (&b),1);
+      p_A->data[i][j] = bedc[ (int) b ];
     }
     // être sûr d'être bordé de 11 -> NA
     p_A->data[i][p_A->true_ncol - 1] |= bordermask;
@@ -113,20 +113,20 @@ XPtr<matrix4> read_bed_file(CharacterVector filename, int n_ind, int n_snp) {
 
 // [[Rcpp::export]]
 void write_bed_file(XPtr<matrix4> p_A, CharacterVector filename) {
-  std::ofstream file(filename[0], std::ios::out|std::ios::binary);
+  std::ofstream file(filename[0], std::ofstream::binary);
   if(!file.is_open()) {
     Rf_error("Cannot open file");
   }
 
-  char magic[3] = {108, 27, 1};
-  file.write(magic, 3);
+  uint8_t magic[3] = {108, 27, 1};
+  file.write(reinterpret_cast<char *> (magic), 3);
 
   int n_snp = p_A->nrow;
-  char b;
+  uint8_t b;
   for(int i = 0; i < n_snp; i++) {
     for(int j = 0; j < p_A->true_ncol; j++) {
-      b = tobed[ (unsigned char) p_A->data[i][j] ];
-      file.write(&b,1);
+      b = tobed[ (int) p_A->data[i][j] ];
+      file.write( reinterpret_cast<char *> (&b),1);
     }
   }
 

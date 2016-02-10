@@ -64,31 +64,38 @@ desc <- packageDescription("gaston")
   large genotype (SNP) matrices, and state-of-the-art implementation of algorithms
   to fit Linear Mixed Models, that can be used to compute heritability 
   estimates or to perform association tests.
-
   Thanks to the packages \verb!Rcpp!, \verb!RcppParallel!, \verb!RcppEigen!, Gaston
-  functions are mainly written in C++. 
+  functions are mainly written in C++. Many are multithreaded.
 
-  Many functions are multithreaded;
-  the number of threads can be setted through \verb!RcppParallel!
-  function \verb!setThreadOptions!.
+  In this vignette, we illustrate Gaston using the included data sets \verb!AGT!, \verb!LCT!,
+  and \verb!TTN! (see the corresponding manual pages for a description). 
+  Gaston also includes some example files in the \verb!extdata! folder. 
+  Not all options of the functions are described here, but rather their basic usage.
+  The reader is advised to look at the manual pages for details.
+
+  Note that the package name is written \verb!gaston! when dealing with R commands, 
+  but Gaston (with a capital) in human language.
+
+\subsection*{Modifying Gaston's behaviour with global options}
+
+  The number of threads used by multithreaded functions can be set
+  through \verb!RcppParallel!  function \verb!setThreadOptions!.
   It is advised to try several values for the number of threads, as 
-  using too many threads might be conterproductive due to an important
+  using too many threads might be counterproductive due to an important
   overhead.
 
   Some functions have a \verb!verbose! argument, which controls the
   function verbosity. To mute all functions at once you can use 
   \verb!options(gaston.verbose = FALSE)!.
 
-  We are going to illustrate this package on the data sets \verb!AGT!, \verb!LCT!,
-  and \verb!TTN! included in \verb!gaston! (see the corresponding manual pages for
-  a description of these data sets). 
-  Gaston also includes some example files in the \verb!extdata! folder. 
+  Since version 1.4, the behaviour of all functions that output a
+  matrix of genotypes (a bed.matrix, described in the next section)
+  can be modified deeply by setting \verb!options(gaston.auto.set.stats = FALSE)!.
+  The effects of this option is described in section \ref{stats}
+  below. Note that some examples in the manual pages might not work if
+  you use this option.
 
-  Not all options of the functions are described here, but rather their basic usage.
-  The reader is advised to look at the manual pages for details.
 
-  Note that the package name is written \verb!gaston! when dealing with R commands, 
-  but Gaston (with a capital) in human language.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vfill\eject
@@ -156,8 +163,11 @@ x
   Let's have a look on the slots names of the bed.matrix \verb!x! created above using the dataset \verb!LCT!.
 
 <<>>=
+data(TTN)
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
 slotNames(x)
 @
+
   The slot \verb!x@bed! is an external pointer, which indicates where the genetic data are stored in
   memory. It will be used by the C++ functions called by Gaston. 
 <<>>=
@@ -168,26 +178,48 @@ x@bed
   The other slots will be commented later.
 
   The slot \verb!x@ped! gives informations on the individuals. 
-  It corresponds to the contents of a \verb!.fam! file, or to the first 6 columns of a \verb!.ped! file 
-  (known as linkage format).
+  The first 6 columns correspond to the contents of a \verb!.fam! file, or to the first 6 columns of a \verb!.ped! file 
+  (known as linkage format). The other columns are simple descriptive
+  stats that are computed by Gaston, unless \verb!options(gaston.auto.set.stats = FALSE)!
+  was set (see below section \ref{stats}).
+
 <<>>= 
 dim(x@ped)
 head(x@ped)
 @
 
-  The slot \verb!x@snps! gives informations on the SNPs. It corresponds to the contents of a 
-  \verb!.bim! file.
+  The slot \verb!x@snps! gives informations on the SNPs. Its first 6
+  columns corresponds to the contents of a \verb!.bim! file. The other
+  columns are simple descriptive stats that are computed by Gaston. Again, if 
+  the global option 
+  \verb!options(gaston.auto.set.stats = FALSE)! was set (see below), these
+  columns will be absent (see below section \ref{stats}).
 
 <<>>=
 dim(x@snps)
 head(x@snps)
 @
 
-\subsection{Adding basic statistics to a bed.matrix}
+\subsection{Basic statistics included in a bed.matrix}\label{stats}
 
-  Some basic descriptive statistics can be added to a bed.matrix with \verb!set.stats!.
-  By default this function adds columns to the \verb!ped!  and \verb!snps! slots:
+  Some simple descriptive statistics can be added to a bed.matrix with \verb!set.stats!.
+  Since version 1.4 of gaston, this function is called by default by all functions that create 
+  a bed.matrix, unless the global option \verb!options(gaston.auto.set.stats = FALSE)! was set.
+  This option can be used to gain some time in some particular cases.
 
+  We illustrate here the effect of this option:
+<<>>=
+options(gaston.auto.set.stats = FALSE)
+data(TTN)
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
+head(x@ped)
+head(x@snps)
+@
+
+  The reader is invited to compare with what we obtained in the previous section of this document.
+
+  The function \verb!set.stats! can be called to add the missing descriptive statistics to the \verb!ped! 
+  and \verb!snps! slots:
 <<>>=
 x <- set.stats(x)
 head(x@ped)
@@ -198,7 +230,7 @@ head(x@snps)
   of genotypes 0, 1, 2 and \verb!NA!, for each invidual or each SNP according to
   the data frame in which they appear. The callrate is the proportion of non-missing
   genotypes. In the \verb!snps! slot, \verb!maf! is the minor allele frequency, and 
-  \verb!hz! it the proportion of heterozygotes.
+  \verb!hz! it the heterozygosity rate.
 
   The default is too also also update the slots \verb!x@p!, \verb!x@mu! and \verb!x@sigma!:
 <<>>=
@@ -233,6 +265,12 @@ lines(t, sqrt(2*t*(1-t)), col="red")
   variables added by \verb!set.stats! or \verb!set.hwe!, which are note saved in the
   \verb!.bim! and \verb!.fam! files.
 
+  For the remaining of this vignette, we restore the default behaviour:
+<<>>=
+options(gaston.auto.set.stats = TRUE)
+@
+
+\vfill\eject
 \subsection{Subsetting bed.matrices}
 
   It is possible to subset bed.matrices just as base matrices, writing e.g.
@@ -269,8 +307,9 @@ select.snps(x, maf > 0.1 & hwe > 1e-3)
 
   These functions should make basic Quality Control easy.
 
-  \noindent{\bfseries Note:}\ \ Subsetting will erase some or all statistics added by \verb!set.stats!,
-  except the \verb!p!, \verb!mu! and \verb!sigma! slots. A solution is to write \verb!set.stats( x[1:100,10:19] )!.
+  \noindent{\bfseries Note:}\ \ If \verb!options(gaston.auto.set.stats = FALSE)!
+  was set, subsetting will erase some or all statistics added by \verb!set.stats!,
+  except the \verb!p!, \verb!mu! and \verb!sigma! slots. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vfill\eject
@@ -287,7 +326,7 @@ X_{ij} - \mu_j \over \sigma_j
 
   Consider the TTN data set. The unscaled matrix contains 0,1,2 values:
 <<>>=
-x <- set.stats(as.bed.matrix(TTN.gen, TTN.fam, TTN.bim))
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
 X <- as.matrix(x)
 X[1:5,1:4]
 @
@@ -296,7 +335,7 @@ X[1:5,1:4]
   as the function uses \verb!match.arg!):
 <<>>=
 standardize(x) <- "mu"
-as.matrix( x[1:5, 1:4] )
+as.matrix(x)[1:5, 1:4] 
 @
 
   The result is similar to what would be obtained from the base function \verb!scale!:
@@ -308,7 +347,7 @@ scale(X)[1:5,1:4]
   result can again be obtained from \verb!scale!, with the right options:
 <<>>=
 standardize(x) <- "p"
-as.matrix( x[1:5, 1:4] )
+as.matrix(x)[1:5, 1:4] 
 scale(X, scale = sqrt(2*x@p*(1-x@p)))[1:5,1:4]
 @
 
@@ -425,7 +464,6 @@ head( PC[,1:2] )
 <<fig=TRUE>>=
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
-x <- set.stats(x)
 
 ld.x <- LD(x, c(1,ncol(x)))
 
@@ -719,7 +757,7 @@ fit10$tau/(fit10$tau+fit10$sigma2)
   We illustrate this function on a simple example, build on the AGT data set:
 <<>>=
 data(AGT)
-x <- set.stats(as.bed.matrix(AGT.gen, AGT.fam, AGT.bim))
+x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 standardize(x) <- 'mu'
 @
 
@@ -767,7 +805,7 @@ A few things that may be added to the package in the near future:
 \begin{itemize}
 \item Reading \verb!.ped! files
 \item Maximum Likelihood Linkage Disequilibrium estimation
-\item LMM models fitting written in equationnal form
+\item LMM models fitting written in equation form
 \item A faster version of \verb!association.test!
 \item More functions and models for association testing
 \item Anything you asked the maintainer for

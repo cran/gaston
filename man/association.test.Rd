@@ -56,8 +56,7 @@ association.test(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
 # Load data
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
-x <- set.stats(x)
-standardize(x) <- 'mu'
+standardize(x) <- "p"
 
 # generate a random positive matrix (to play the role of the GRM)
 set.seed(1)

@@ -22,6 +22,9 @@ set.stats(x, set.ped_stats=TRUE, set.snps_stats=TRUE, set.p = TRUE,
 }
 
 \details{
+  This function is called by default by all functions that create a bed.matrix, unless
+  the global option \code{gaston.auto.set.stats} is \code{FALSE} (cf example below).
+
   If \code{set.ped_stats = TRUE}, the following variables are updated in \code{x@ped} :
 \itemize{
   \item \code{N0}, \code{N1}, \code{N2} and \code{NAs} give for each individual the number of SNPs
@@ -54,14 +57,22 @@ set.stats(x, set.ped_stats=TRUE, set.snps_stats=TRUE, set.p = TRUE,
 \seealso{ \code{\link{set.hwe}} }
 
 \examples{
+# Disable auto set stats :
+options(gaston.auto.set.stats = FALSE)
+
 # Load data
 data(TTN)
 x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
+str(x@ped)
+str(x@snps)
 
 # Compute statistics
 x <- set.stats(x)
 str(x@ped)
 str(x@snps)
+
+# restore default behavior
+options(gaston.auto.set.stats = TRUE)
 }
 
 \keyword{ Genetic }

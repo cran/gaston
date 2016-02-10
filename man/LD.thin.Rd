@@ -45,7 +45,6 @@ data(TTN)
 x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
 
 # Select SNPs in LD r^2 < 0.4, max.dist = 500 kb
-x <- set.stats(x)
 y <- LD.thin(x, threshold = 0.4, max.dist = 500e3)
 y
 

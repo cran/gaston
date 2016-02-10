@@ -78,8 +78,7 @@ data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 
 # Compute Genetic Relationship Matrix
-x <- set.stats(x)
-standardize(x) <- 'mu'
+standardize(x) <- "p"
 K <- GRM(x)
 
 # Simulate a quantitative genotype under the LMM

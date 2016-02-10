@@ -20,7 +20,7 @@
 x <- read.bed.matrix( system.file("extdata", "chr2.bed", package="gaston") )
 
 # Compute Genetic Relationship Matrix
-standardize(x) <- 'p'
+standardize(x) <- "p"
 K <- GRM(x)
 
 # Eigen decomposition

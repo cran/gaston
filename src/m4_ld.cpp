@@ -32,8 +32,8 @@ double LD_colxx(matrix4 & A, double mu1, double mu2, double v, size_t x1, size_t
   gg[10]= (2.-mu1)*(2.-mu2);
 
   for(size_t i = 0; i < A.true_ncol; i++) {
-    char g1 = A.data[x1][i];
-    char g2 = A.data[x2][i];
+    uint8_t g1 = A.data[x1][i];
+    uint8_t g2 = A.data[x2][i];
     for(int ss = 0; ss < 4; ss++) {
       LD += gg[ ((g1&3)*4) + (g2&3) ];
       g1 >>= 2;
@@ -47,8 +47,8 @@ double LD_colxx(matrix4 & A, double mu1, double mu2, double v, size_t x1, size_t
 // la version parallèle est plus lente (en tout cas sur mon portable)... (c'est le join ?)
 struct paraLD : public Worker {
   // input
-  const char * d1;
-  const char * d2;
+  const uint8_t * d1;
+  const uint8_t * d2;
   double * gg;
 
   // output
@@ -59,8 +59,8 @@ struct paraLD : public Worker {
 
   void operator()(size_t beg, size_t end) {
     for(size_t i = beg; i < end; i++) {
-      char g1 = d1[i];
-      char g2 = d2[i];
+      uint8_t g1 = d1[i];
+      uint8_t g2 = d2[i];
       for(int ss = 0; ss < 4; ss++) {
         LD += gg[ ((g1&3)*4) + (g2&3) ];
         g1 >>= 2;

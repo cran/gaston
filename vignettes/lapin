@@ -1,0 +1,199 @@
+%\VignetteIndexEntry{gaston package}
+%\VignetteDepends{gaston}
+%\VignettePackage{gaston}
+
+\documentclass{article}
+\usepackage[noae]{Sweave}
+\usepackage[top=35mm, bottom=40mm, left=25mm , right=25mm]{geometry}
+\usepackage{moreverb}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+\setkeys{Gin}{width=0.4\textwidth}
+\SweaveOpts{echo=TRUE, eps=FALSE, pdf=TRUE}
+
+\raggedbottom
+\pagestyle{empty}
+\parindent0pt
+\parskip8pt
+\def\thesection{\arabic{section}}
+\def\theequation{\arabic{equation}}
+\let\epsilon\varepsilon
+
+%\DefineVerbatimEnvironment{Sinput}{Verbatim}{}
+%\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
+%\DefineVerbatimEnvironment{Scode}{Verbatim}{}
+\fvset{listparameters={\setlength{\topsep}{-0.5em}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+
+<<echo=FALSE>>=
+options(continue=" ", prompt = " ", SweaveHooks=list(fig=function() par(mar=c(5.1,4.1,3.1,2.1))), width=90)
+@
+
+<<prompton, echo=FALSE>>=
+options(prompt="> ", continue = " ");
+@
+
+<<promptoff, echo=FALSE>>=
+options(prompt=" ", continue=" ");
+@
+
+<<echo=FALSE>>=
+<<prompton>>
+options(width = 90)
+@
+
+
+<<desc, include=FALSE, echo=FALSE>>=
+require(gaston)
+desc <- packageDescription("gaston")
+@
+
+\title{{\bfseries Gaston}\\
+       {\large Version \Sexpr{desc$Version}}}
+\author{Hervé Perdry, Claire Dandine-Roulland}
+
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Introduction}
+
+  Gaston offers functions for efficient manipulation of 
+  large genotype (SNP) matrices, and state-of-the-art implementation of algorithms
+  to fit Linear Mixed Models, that can be used to compute heritability 
+  estimates or to perform association tests.
+  Thanks to the packages \verb!Rcpp!, \verb!RcppParallel!, \verb!RcppEigen!, Gaston
+  functions are mainly written in C++. Many are multithreaded.
+
+  In this vignette, we illustrate Gaston using the included data sets \verb!AGT!, \verb!LCT!,
+  and \verb!TTN! (see the corresponding manual pages for a description). 
+  Gaston also includes some example files in the \verb!extdata! folder. 
+  Not all options of the functions are described here, but rather their basic usage.
+  The reader is advised to look at the manual pages for details.
+
+  Note that the package name is written \verb!gaston! when dealing with R commands, 
+  but Gaston (with a capital) in human language.
+
+\subsection*{Modifying Gaston's behaviour with options}
+
+  The number of threads used by multithreaded functions can be set
+  through \verb!RcppParallel!  function \verb!setThreadOptions!.
+  It is advised to try several values for the number of threads, as 
+  using too many threads might be counterproductive due to an important
+  overhead.
+
+  Some functions have a \verb!verbose! argument, which controls the
+  function verbosity. To mute all functions at once you can use 
+  \verb!options(gaston.verbose = FALSE)!.
+
+  Since version 1.4, the behaviour of all functions that output a
+  matrix of genotypes (a bed.matrix, described in the next section)
+  can be modified deeply by setting \verb!options(gaston.auto.set.stats = FALSE)!.
+  The effects of this option is described in section \ref{stats}
+  below. Note that some examples in the manual pages might not work if
+  you use this option.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vfill\eject
+\section{Genotype matrices}
+
+  An S4 class for genotype matrices is defined, named \verb!bed.matrix!.
+  Each row correspond to an individual, and each column to a SNP. 
+
+\subsection{Reading bed.matrices from files}
+
+  Bed.matrices be read from files using \verb!read.bed.matrix!.
+  The function \verb!read.vcf! reads VCF files; it relies on the package \verb!WhopGenome!.
+
+  Gaston includes example files that can be used for illustration:
+
+<<>>=
+x <- read.bed.matrix( system.file("extdata", "LCT.bed", package="gaston") )
+x
+@
+  
+  The folder \verb!extdata/! contains files \verb!LCT.bed!, \verb!LCT.rds!,
+  \verb!LCT.bim! and \verb!LCT.fam!. The \verb!.bed!, \verb!.bim! and \verb!.fam! files follow the
+  PLINK specifications. The \verb!.rds! file is a R data file; if it is present, the
+  \verb!.bim! and \verb!.fam! files are ignored. You can ignore the
+  \verb!.rds! file using option \verb!rds = NULL!:
+
+<<>>=
+x <- read.bed.matrix( system.file("extdata", "LCT.bed", package="gaston"), rds = NULL )
+x
+@
+
+  A bed.matrix can be saved using \verb!write.bed.matrix!.  
+  The default behavior is to write \verb!.bed!, \verb!.bim!, \verb!.fam! 
+  and \verb!.rds! files; see the manual page for more details.
+
+\subsection{Conversion from and to R objects}
+
+  A numerical matrix \verb!x! containing genotype counts (0, 1, 2 or \verb!NA!) can be 
+  transformed in a bed.matrix with \verb!as(x, "bed.matrix")!. The resulting
+  object will lack individual and SNP informations (if the rownames and colnames
+  of \verb!x! are set, they will be used as SNP and individual ids respectively).
+
+  Conversely, a numerical matrix can be retrieved from a bed.matrix using \verb!as.matrix!. 
+  
+  The function \verb!as.bed.matrix! allows to provide data frames corresponding to 
+  the \verb!.fam! and \verb!.bim! files. They should have colnames \verb!famid!, 
+  \verb!id!, \verb!father!, \verb!mother!, \verb!sex!, \verb!pheno!, and \verb!chr!, \verb!id!, 
+  \verb!dist!, \verb!pos!, \verb!A1!, \verb!A2! respectively. This function is widely used in
+  the examples included in manual pages.
+
+<<>>=
+data(TTN)
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
+x
+@
+
+\subsection{The insides of a bed.matrix}
+
+  In first approach, a bed.matrix behaves as a "read-only" matrix containing only 
+  0, 1, 2 and NAs, unless the genotypes are standardized (use \verb!standardize<-!).
+  They are stored in a compact form, each genotype being coded on 2 bits (hence
+  4 genotypes per byte). 
+
+  Bed.matrices are implemented using S4 classes and methods.
+  Let's have a look on the slots names of the bed.matrix \verb!x! created above using the dataset \verb!LCT!.
+
+<<>>=
+data(TTN)
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
+slotNames(x)
+@
+
+  The slot \verb!x@bed! is an external pointer, which indicates where the genetic data are stored in
+  memory. It will be used by the C++ functions called by Gaston. 
+<<>>=
+x@bed
+@
+
+  Let's look at the contents of the slots \verb!x@ped! and \verb!x@snps!.
+  The other slots will be commented later.
+
+  The slot \verb!x@ped! gives informations on the individuals. 
+  The first 6 columns correspond to the contents of a \verb!.fam! file, or to the first 6 columns of a \verb!.ped! file 
+  (known as linkage format). The other columns are simple descriptive
+  stats that are computed by Gaston, unless \verb!options(gaston.auto.set.stats = FALSE)!
+  was set (see below).
+
+<<>>= 
+dim(x@ped)
+head(x@ped)
+@
+
+  The slot \verb!x@snps! gives informations on the SNPs. Its first 6
+  columns corresponds to the contents of a \verb!.bim! file. The other
+  columns are simple descriptive stats that are computed by Gaston, unless
+  \verb!options(gaston.auto.set.stats = FALSE)! was set (see below).
+
+<<>>=
+dim(x@snps)
+head(x@snps)
+@

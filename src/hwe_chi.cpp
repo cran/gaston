@@ -2,11 +2,14 @@
 #include <RcppParallel.h>
 #include <iostream>
 #include <ctime>
+#include <limits>
 
-double hwe_chi0(int a0, int a1, int a2) {
+double hwe_chi0(unsigned int a0, unsigned int a1, unsigned int a2) {
   int n = a0 + a1 + a2;
+  if(n == 0) // no data
+    return std::numeric_limits<double>::quiet_NaN(); 
   double p = (double) (2*a2+a1) / (2*n);
-  if(p == 0 || p == 1) return 1;
+  if(p == 0 || p == 1) return 1; // monomorphe
   double e0 = n*(1-p)*(1-p), e1 = 2*n*p*(1-p), e2 = n*p*p;
   double chi = (a0-e0)*(a0-e0)/e0 + (a1-e1)*(a1-e1)/e1 + (a2-e2)*(a2-e2)/e2;
   return R::pchisq(chi, 1., 0, 0);

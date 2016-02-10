@@ -56,10 +56,10 @@ List read_vcf(Function f, CharacterVector x, int nsamples, int nsnps) {
     ref.push_back(ref_);
     alt.push_back(alt_);
 
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip qual
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip filter 
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip info
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip format [should check if GT !!]
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip qual
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip filter 
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip info
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error while reading SNP read %s", id_.c_str()); // skip format [should check if GT !!]
 
     for(int j = 0; j < nsamples; j++) {
       int le = onetab_str_token(a,t); 
@@ -68,7 +68,7 @@ List read_vcf(Function f, CharacterVector x, int nsamples, int nsnps) {
         int g = 0;
         if(*t == 49) g++;
         if(*(t+2) == 49) g++;
-        if(*t == 46 | *(t+2) == 46) g = 3;
+        if( (*t == 46) || (*(t+2) == 46)) g = 3;
         (*pX).set(i,j,g); 
       } else { // un allèle
         int g = 0;
@@ -100,13 +100,13 @@ int count_dia_vcf(Function f, CharacterVector x) {
     char * a = (char *) x[0];
     char * t = a;
 
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error, last SNP read %s",id_); // skip chr
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error, last SNP read %s",id_); // skip pos
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error, last SNP read %s",id_); // skip chr
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error, last SNP read %s",id_); // skip pos
 
     if(onetab_str_token(a,t)>0) id_ = t ;  // read id
     else Rf_error("VCF format error, last SNP read %s",id_);
 
-    if(!onetab_str_token(a,t)>0) Rf_error("VCF format error while reading SNP %s",id_); // skip ref
+    if(!(onetab_str_token(a,t)>0)) Rf_error("VCF format error while reading SNP %s",id_); // skip ref
 
     if(onetab_str_token(a,t)>0) alt_.assign(t); // read alt
     else Rf_error("VCF format error while reading SNP %s",id_);

@@ -34,7 +34,6 @@ in the data frame \code{x@snps}, that is
 # Load data
 data(LCT)
 x <- as.bed.matrix(LCT.gen, LCT.fam, LCT.bim)
-x <- set.stats(x)
 
 # Select SNPs with a maf > 5%
 y <- select.snps(x, maf > 0.05)

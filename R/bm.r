@@ -5,8 +5,9 @@ setClassUnion("numericOrNULL",members=c("numeric", "NULL"))
 pednames <- c("famid", "id", "father", "mother", "sex", "pheno")
 snpnames <- c("chr", "id", "dist", "pos", "A1", "A2")
 
+snpstatnames0 <- c("N0", "N1", "N2", "NAs", "callrate", "maf", "hz")
 snpstatnames <- c("N0", "N1", "N2", "NAs", "callrate", "maf", "hz", "hwe")
-pedstatnames <- c("N0", "N1", "N2", "NAs", "callrate")
+pedstatnames <- c("N0", "N1", "N2", "NAs", "callrate", "hz")
 
 is.null.df <- function(x) is.data.frame(x) & nrow(x) == 0 & ncol(x) == 0
 
@@ -36,6 +37,8 @@ setValidity('bed.matrix',
                 errors <- c(errors, "The length of 'mu' must be equal to the number of markers.")
              if ( !is.null(object@sigma) & length(object@sigma) != ncol(object) ) 
                 errors <- c(errors, "The length of 'sigma' must be equal to the number of markers.")
+             if(.Call("isnullptr",  PACKAGE = "gaston", object@bed))
+                errors <- c(errors, 'The externalptr is broken')
              if ( length(errors)==0 ) return(TRUE) else return(errors)
            } );
 
@@ -72,30 +75,11 @@ setAs("matrix", "bed.matrix",
            else 
              data.frame(chr = NA, id = colnames(from), dist = NA, pos = NA, A1 = NA, A2 = NA, stringsAsFactors = FALSE)
 
-    new("bed.matrix", bed = bed, snps = snp, ped = ped, p = NULL, mu = NULL,
-        sigma = NULL, standardize_p = FALSE, standardize_mu_sigma = FALSE )
+    x <- new("bed.matrix", bed = bed, snps = snp, ped = ped, p = NULL, mu = NULL,
+             sigma = NULL, standardize_p = FALSE, standardize_mu_sigma = FALSE )
+    if(getOption("gaston.auto.set.stats", TRUE)) x <- set.stats(x, verbose = FALSE)
+    x
   } );
-
-setGeneric('as.bed.matrix',function(x, fam = NULL, bim = NULL) standardGeneric("as.bed.matrix"),package='gaston',valueClass="bed.matrix")
-setMethod('as.bed.matrix', signature=c(x='matrix', fam = 'data.frameOrNULL', bim = 'data.frameOrNULL'),
-          def=function(x, fam = NULL, bim = NULL) {
-   if ( !is.null(fam) & !is.data.frame(fam) ) stop('fam must be a data.frame or NULL.')
-   if ( !is.null(bim) & !is.data.frame(bim) ) stop('bim must be a data.frame or NULL.')
-   to <- as(x,"bed.matrix")
-   if (!is.null(fam))
-   {
-     to@ped <- if(all(pednames %in% names(fam))) 
-                 data.frame(famid = fam$famid, id = fam$id, father = fam$father, mother = fam$mother, sex = fam$sex, pheno = fam$pheno, stringsAsFactors = FALSE)
-               else 
-                 stop('"fam" data frame must contains "famid", "id", "father", "mother", "sex" and "pheno" variables')
-   }
-   if (!is.null(bim)) {
-     to@snps <- if(all(snpnames %in% names(bim))) 
-                  data.frame(chr = bim$chr, id = bim$id, dist = bim$dist, pos = bim$pos, A1 = bim$A1, A2 = bim$A2, stringsAsFactors = FALSE)
-               else 
-                  stop('"bim" data frame must contains "chr", "id", "dist", "pos", "A1" and "A2" variables')
-   }
-   to } )
 
 setGeneric('dim')
 setMethod("dim", signature = "bed.matrix", 
@@ -105,9 +89,30 @@ setGeneric('head')
 setMethod( 'head', signature(x='bed.matrix'), function(x, nrow=10, ncol=10) print( as.matrix( x[1:min( nrow, nrow(x) ),1:min( ncol, ncol(x) )] ) ) )
 
 setMethod(show, signature("bed.matrix"), 
-      function(object) { 
-        cat('A bed.matrix with ', nrow(object), ' individuals and ', ncol(object), ' markers.\n', sep='')
-      } )
-
-	  
-	  
+  function(object) {
+    if(.Call("isnullptr",  PACKAGE = "gaston", object@bed))
+      cat("A bed.matrix with a broken externalptr!\nHint: don't save/load bed.matrices with other functions than write.bed.matrix and read.bed.matrix\n")
+    else {
+      cat('A bed.matrix with ', nrow(object), ' individuals and ', ncol(object), ' markers.\n', sep='')
+      if(anyDuplicated(object@snps$id)) cat("There are some duplicated SNP id's\n")
+      if(all(snpstatnames0 %in% names(object@snps))) {
+        cat("snps stats are set\n");
+        a <- sum(object@snps$NAs == nrow(object))
+        if(a > 1)  cat("  There are ", a, " SNPs with a callrate equal to zero\n");
+        if(a == 1) cat("  There is one SNP with a callrate equal to zero\n");
+        a <- sum(object@snps$maf == 0, na.rm = TRUE)
+        if(a > 1)  cat("  There are ", a, " monomorphic SNPs\n");
+        if(a == 1) cat("  There is one monomorphic SNP\n");
+      } else 
+        cat("snps stats are not set (or incomplete)\n")
+      # ped stats et autres
+      if(anyDuplicated(object@snps$id)) cat("There are some duplicated individual id's\n")
+      if(all(pedstatnames %in% names(object@ped))) {
+        cat("ped stats are set\n");
+        a <- sum(object@ped$NAs == nrow(object))
+        if(a > 1)  cat("  There are ", a, " individuals with a callrate equal to zero\n");
+        if(a == 1) cat("  There is one individual with a callrate equal to zero\n");
+      } else cat("ped stats are not set (or incomplete)\n")
+    }
+  } 
+)

@@ -7,43 +7,53 @@ set.stats <- function(x, set.ped_stats = TRUE, set.snps_stats = TRUE, set.p = TR
   if(set.ped_stats & set.snps_stats) { 
     st <- .Call('gg_geno_stats', PACKAGE = 'gaston', x@bed) 
 
-    st$snps$callrate <- 1-st$snps$NAs/nrow(x)
-    st$inds$callrate <- 1-st$inds$NAs/ncol(x)
 
+    # completer snps
+    st$snps$callrate <- 1-st$snps$NAs/nrow(x)
     n <- nrow(x) - st$snps$NAs;
     pp <- (2*st$snps$N2 + st$snps$N1)/(2*n);
     st$snps$maf <- pmin(pp,1-pp)
-
     st$snps$hz <- st$snps$N1/n
 
+    # completer inds/ped
+    st$inds$callrate <- 1-st$inds$NAs/ncol(x)
+    n <- ncol(x) - st$inds$NAs
+    st$inds$hz <- st$inds$N1/n
+
+    # pour set_mu_sigma
     N <- nrow(x)
     s <- sqrt( (st$snps$N1 + 4*st$snps$N2 + (4*st$snps$NAs)*pp**2)/(N-1)  - (pp)**2*(4*N/(N-1)) );
+
     x@snps[, names(st$snps)] <- st$snps
     x@ped[ , names(st$inds)] <- st$inds
     if(verbose) cat("ped stats and snps stats have been set. \n") 
   } 
   else if(set.snps_stats) {
     snps <- .Call('gg_geno_stats_snp', PACKAGE = 'gaston', x@bed)
-    snps$callrate <- 1-snps$NAs/nrow(x)
 
+    # completer snps
+    snps$callrate <- 1-snps$NAs/nrow(x)
     n <- nrow(x) - snps$NAs;
     pp <- (2*snps$N2 + snps$N1)/(2*n);
     snps$maf <- pmin(pp,1-pp)
+    snps$hz <- snps$N1/n
 
-    st$snps$hz <- st$snps$N1/n
-
+    # pour set_mu_sigma
     N <- nrow(x)
     s <- sqrt( (snps$N1 + 4*snps$N2 + (4*snps$NAs)*pp**2)/(N-1)  - (pp)**2*(4*N/(N-1)) );
-    x@snps[, names(st$snps)] <- st$snps
-    if(verbose) cat("snps stats has been set. \n") 
+    x@snps[, names(snps)] <- snps
+    if(verbose) cat("snps stats have been set. \n") 
   } 
   else if(set.ped_stats) { 
     inds <- .Call('gg_geno_stats_ind', PACKAGE = 'gaston', x@bed) 
 
+    # completer inds/ped
     inds$callrate <- 1-inds$NAs/ncol(x)
+    n <- ncol(x) - inds$NAs
+    inds$hz <- inds$N1/n
 
-    x@ped[ , names(st$inds)] <- st$inds
-    if(verbose) cat("ped_stats has been set. \n") 
+    x@ped[ , names(inds)] <- inds
+    if(verbose) cat("ped stats have been set. \n") 
   }
   else {
     if(set.p | set.mu_sigma) {
@@ -55,12 +65,12 @@ set.stats <- function(x, set.ped_stats = TRUE, set.snps_stats = TRUE, set.p = TR
   }
 
 
-  if(set.p & exists("pp")) {
+  if(set.p) {
     x@p <- pp
     if(verbose) cat("'p' has been set. \n")
   }
 
-  if(set.mu_sigma & exists("pp") & exists("s")) {
+  if(set.mu_sigma) {
     x@mu <- 2*pp; x@sigma <- s
     if(verbose) cat("'mu' and 'sigma' have been set.\n");
   }

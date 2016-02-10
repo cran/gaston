@@ -29,19 +29,22 @@ read.bed.matrix <- function(basename, bed = paste(basename, ".bed", sep=""), fam
 
     if(verbose) cat("Reading", bed, "\n")
     bed <- .Call('gg_read_bed_file', bed, nrow(ped), nrow(snp))
-    return(new("bed.matrix", bed = bed, snps = snp, ped = ped,                            
+    x <- new("bed.matrix", bed = bed, snps = snp, ped = ped,                            
       p = NULL, mu = NULL, sigma = NULL, standardize_p = FALSE,
-      standardize_mu_sigma = FALSE ))
+      standardize_mu_sigma = FALSE )
+    if(getOption("gaston.auto.set.stats", TRUE)) x <- set.stats(x, verbose = verbose)
+    return(x)
   }
-  
+ 
+  # reading rds [on ne fait pas set.stats dans ce cas !!]
   if(verbose) cat("Reading", rds, "\n")
-  to <- readRDS(rds)
-  if ( is(to) != "bed.matrix" ) stop("The object in file ", rds, " is not a bed.matrix")
+  x <- readRDS(rds)
+  if ( is(x) != "bed.matrix" ) stop("The object in file ", rds, " is not a bed.matrix")
 
   if(verbose) cat("Reading", bed, "\n")
-  to@bed <- .Call('gg_read_bed_file', bed, nrow(to@ped), nrow(to@snps))
+  x@bed <- .Call('gg_read_bed_file', bed, nrow(x@ped), nrow(x@snps))
 
-  to
+  x
 }
 
 
@@ -49,11 +52,19 @@ write.bed.matrix <- function(x, basename, bed = paste(basename, ".bed", sep=""),
                                           bim = paste(basename, ".bim", sep=""), rds = paste(basename, ".rds", sep="")) {
   if ( is(x) != "bed.matrix" ) stop("x must be a bed.matrix")
 
-  if(!is.null(fam) & all(pednames %in% names(x@ped)))
-    write.table(x@ped[,pednames], file = fam, row.names=FALSE, col.names=FALSE, quote = FALSE)
+  if(!is.null(fam)) {
+    if(all(pednames %in% names(x@ped)))
+      write.table(x@ped[,pednames], file = fam, row.names=FALSE, col.names=FALSE, quote = FALSE)
+    else
+      warning("Can't create .fam file from x: missing columns in x@ped")
+  }
 
-  if(!is.null(bim) & all(snpnames %in% names(x@snps)))
-    write.table(x@snps[,snpnames], file = bim, row.names=FALSE, col.names=FALSE, sep = "\t", quote = FALSE)
+  if(!is.null(bim)){
+    if(all(snpnames %in% names(x@snps)))
+      write.table(x@snps[,snpnames], file = bim, row.names=FALSE, col.names=FALSE, sep = "\t", quote = FALSE)
+    else
+      warning("Can't create .bim file from x: missing columns in x@snps")
+  }
 
   if(!is.null(rds))
     saveRDS(x, rds)
@@ -86,11 +97,14 @@ read.vcf <- function(filename, max.snps, verbose = getOption("gaston.verbose",TR
   
   L <- .Call("gg_read_vcf", PACKAGE="gaston", f, d, length(samples), max.snps)
   vcf_close(xx)
-  snp <- data.frame(chr = L$chr, id = L$id, dist = 0, pos = L$pos , A1 = L$A1, A2 = L$A2)
-  ped <- data.frame(fam = samples, id = samples, father = 0, mother = 0, sex = 0, pheno = NA)
-  new("bed.matrix", bed = L$bed, snps = snp, ped = ped,
-      p = NULL, mu = NULL, sigma = NULL, standardize_p = FALSE,
-      standardize_mu_sigma = FALSE )
+  snp <- data.frame(chr = L$chr, id = L$id, dist = 0, pos = L$pos , A1 = L$A1, A2 = L$A2, stringsAsFactors = FALSE)
+  ped <- data.frame(famid = samples, id = samples, father = 0, mother = 0, sex = 0, pheno = NA, stringsAsFactors = FALSE)
+  x <- new("bed.matrix", bed = L$bed, snps = snp, ped = ped,
+           p = NULL, mu = NULL, sigma = NULL, standardize_p = FALSE,
+           standardize_mu_sigma = FALSE )
+
+  if(getOption("gaston.auto.set.stats", TRUE)) x <- set.stats(x, verbose = verbose)
+  x
 }
 
 count.vcf <- function(filename) {

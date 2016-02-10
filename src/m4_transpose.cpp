@@ -16,14 +16,14 @@ matrix4 transposexx(matrix4 & A) {
   matrix4 B(A.ncol, A.nrow);
   for(size_t j = 0; j < A.nrow; j++) {
     for(size_t i = 0; i < A.true_ncol-1; i++) {
-      char x = A.data[j][i];
+      uint8_t x = A.data[j][i];
       for(int ss = 0; ss < 4; ss++) {
         B(4*i+ss,j) = (x&3);
         x >>= 2;
       }
     }
     size_t i = A.true_ncol-1;
-    char x = A.data[j][i];
+    uint8_t x = A.data[j][i];
     for(int ss = 0; 4*i + ss < A.ncol; ss++) {
       B(4*i+ss,j) = (x&3);
       x >>= 2;

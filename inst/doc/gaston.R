@@ -34,21 +34,21 @@ desc <- packageDescription("gaston")
 
 
 ###################################################
-### code chunk number 6: gaston.Rnw:107-109
+### code chunk number 6: gaston.Rnw:114-116
 ###################################################
 x <- read.bed.matrix( system.file("extdata", "LCT.bed", package="gaston") )
 x
 
 
 ###################################################
-### code chunk number 7: gaston.Rnw:118-120
+### code chunk number 7: gaston.Rnw:125-127
 ###################################################
 x <- read.bed.matrix( system.file("extdata", "LCT.bed", package="gaston"), rds = NULL )
 x
 
 
 ###################################################
-### code chunk number 8: gaston.Rnw:142-145
+### code chunk number 8: gaston.Rnw:149-152
 ###################################################
 data(TTN)
 x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
@@ -56,33 +56,45 @@ x
 
 
 ###################################################
-### code chunk number 9: gaston.Rnw:158-159
+### code chunk number 9: gaston.Rnw:165-168
 ###################################################
+data(TTN)
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
 slotNames(x)
 
 
 ###################################################
-### code chunk number 10: gaston.Rnw:163-164
+### code chunk number 10: gaston.Rnw:173-174
 ###################################################
 x@bed
 
 
 ###################################################
-### code chunk number 11: gaston.Rnw:173-175
+### code chunk number 11: gaston.Rnw:186-188
 ###################################################
 dim(x@ped)
 head(x@ped)
 
 
 ###################################################
-### code chunk number 12: gaston.Rnw:181-183
+### code chunk number 12: gaston.Rnw:198-200
 ###################################################
 dim(x@snps)
 head(x@snps)
 
 
 ###################################################
-### code chunk number 13: gaston.Rnw:191-194
+### code chunk number 13: gaston.Rnw:211-216
+###################################################
+options(gaston.auto.set.stats = FALSE)
+data(TTN)
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
+head(x@ped)
+head(x@snps)
+
+
+###################################################
+### code chunk number 14: gaston.Rnw:223-226
 ###################################################
 x <- set.stats(x)
 head(x@ped)
@@ -90,7 +102,7 @@ head(x@snps)
 
 
 ###################################################
-### code chunk number 14: gaston.Rnw:204-207
+### code chunk number 15: gaston.Rnw:236-239
 ###################################################
 str(x@p)
 str(x@mu)
@@ -98,7 +110,7 @@ str(x@sigma)
 
 
 ###################################################
-### code chunk number 15: gaston.Rnw:216-219
+### code chunk number 16: gaston.Rnw:248-251
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 plot(x@p, x@sigma, xlim=c(0,1))
@@ -107,62 +119,68 @@ lines(t, sqrt(2*t*(1-t)), col="red")
 
 
 ###################################################
-### code chunk number 16: gaston.Rnw:242-244
+### code chunk number 17: gaston.Rnw:269-270
+###################################################
+options(gaston.auto.set.stats = TRUE)
+
+
+###################################################
+### code chunk number 18: gaston.Rnw:280-282
 ###################################################
 x[1:100,]
 x[1:100,10:19]
 
 
 ###################################################
-### code chunk number 17: gaston.Rnw:250-251
+### code chunk number 19: gaston.Rnw:288-289
 ###################################################
 x[,x@snps$maf > 0.1]
 
 
 ###################################################
-### code chunk number 18: gaston.Rnw:259-261
+### code chunk number 20: gaston.Rnw:297-299
 ###################################################
 x <- set.hwe(x)
 select.snps(x, maf > 0.1 & hwe > 1e-3)
 
 
 ###################################################
-### code chunk number 19: gaston.Rnw:289-292
+### code chunk number 21: gaston.Rnw:328-331
 ###################################################
-x <- set.stats(as.bed.matrix(TTN.gen, TTN.fam, TTN.bim))
+x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
 X <- as.matrix(x)
 X[1:5,1:4]
 
 
 ###################################################
-### code chunk number 20: gaston.Rnw:297-299
+### code chunk number 22: gaston.Rnw:336-338
 ###################################################
 standardize(x) <- "mu"
-as.matrix( x[1:5, 1:4] )
+as.matrix(x)[1:5, 1:4] 
 
 
 ###################################################
-### code chunk number 21: gaston.Rnw:303-304
+### code chunk number 23: gaston.Rnw:342-343
 ###################################################
 scale(X)[1:5,1:4]
 
 
 ###################################################
-### code chunk number 22: gaston.Rnw:309-312
+### code chunk number 24: gaston.Rnw:348-351
 ###################################################
 standardize(x) <- "p"
-as.matrix( x[1:5, 1:4] )
+as.matrix(x)[1:5, 1:4] 
 scale(X, scale = sqrt(2*x@p*(1-x@p)))[1:5,1:4]
 
 
 ###################################################
-### code chunk number 23: gaston.Rnw:326-327
+### code chunk number 25: gaston.Rnw:365-366
 ###################################################
 y <- x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) + rnorm(nrow(x), sd = 1)
 
 
 ###################################################
-### code chunk number 24: gaston.Rnw:348-352
+### code chunk number 26: gaston.Rnw:387-391
 ###################################################
 x <- read.bed.matrix( system.file("extdata", "chr2.bed", package="gaston") )
 x
@@ -171,7 +189,7 @@ table(x@ped$population)
 
 
 ###################################################
-### code chunk number 25: gaston.Rnw:357-363
+### code chunk number 27: gaston.Rnw:396-402
 ###################################################
 standardize(x) <- 'p'
 K <- GRM(x)
@@ -182,7 +200,7 @@ eiK$values[ eiK$values < 0 ] <- 0
 
 
 ###################################################
-### code chunk number 26: gaston.Rnw:372-375
+### code chunk number 28: gaston.Rnw:411-414
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 PC <- sweep(eiK$vectors, 2, sqrt(eiK$values), "*")
@@ -191,7 +209,7 @@ legend("bottomleft", pch = 1, legend = levels(x@ped$population), col = 1:5)
 
 
 ###################################################
-### code chunk number 27: gaston.Rnw:389-393
+### code chunk number 29: gaston.Rnw:428-432
 ###################################################
 # one can use PC[,1:2] instead of eiK$vectors[,1:2] as well
 L <- bed.loadings(x, eiK$vectors[,1:2])
@@ -200,25 +218,24 @@ head(L)
 
 
 ###################################################
-### code chunk number 28: gaston.Rnw:397-398
+### code chunk number 30: gaston.Rnw:436-437
 ###################################################
 colSums(L**2)
 
 
 ###################################################
-### code chunk number 29: gaston.Rnw:402-404
+### code chunk number 31: gaston.Rnw:441-443
 ###################################################
 head( (x %*% L) / sqrt(ncol(x)-1) )
 head( PC[,1:2] )
 
 
 ###################################################
-### code chunk number 30: gaston.Rnw:425-433
+### code chunk number 32: gaston.Rnw:464-471
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
-x <- set.stats(x)
 
 ld.x <- LD(x, c(1,ncol(x)))
 
@@ -227,21 +244,21 @@ LDheatmap(ld.x, genetic.distances=x@snps$pos, color = colormap)
 
 
 ###################################################
-### code chunk number 31: gaston.Rnw:442-444
+### code chunk number 33: gaston.Rnw:480-482
 ###################################################
 y <- LD.thin(x, threshold = 0.4, max.dist = 500e3)
 y
 
 
 ###################################################
-### code chunk number 32: gaston.Rnw:451-453
+### code chunk number 34: gaston.Rnw:489-491
 ###################################################
 ld.y <- LD( y, lim = c(1, ncol(y)) )
 sum( ld.y > 0.4 )
 
 
 ###################################################
-### code chunk number 33: gaston.Rnw:489-494
+### code chunk number 35: gaston.Rnw:527-532
 ###################################################
 set.seed(1)
 n <- 100
@@ -251,14 +268,14 @@ X <- cbind(1, 5*runif(n))
 
 
 ###################################################
-### code chunk number 34: gaston.Rnw:500-502
+### code chunk number 36: gaston.Rnw:538-540
 ###################################################
 u1 <- rnorm(q1, sd = sqrt(2))
 y <- X %*% c(1,2) + Z1 %*% u1 + rnorm(n, sd = sqrt(3))
 
 
 ###################################################
-### code chunk number 35: gaston.Rnw:509-513
+### code chunk number 37: gaston.Rnw:547-551
 ###################################################
 q2 <- 10
 Z2 <- matrix( rnorm(n*q2), nrow = n ) 
@@ -267,7 +284,7 @@ y2 <- X %*% c(1,2) + Z1 %*% u1 + Z2 %*% u2 + rnorm(n, sd = sqrt(3))
 
 
 ###################################################
-### code chunk number 36: gaston.Rnw:526-529
+### code chunk number 38: gaston.Rnw:564-567
 ###################################################
 K1 <- tcrossprod(Z1)
 fit <- lmm.aireml(y, X, K = K1, verbose = FALSE)
@@ -275,7 +292,7 @@ str(fit)
 
 
 ###################################################
-### code chunk number 37: gaston.Rnw:544-548
+### code chunk number 39: gaston.Rnw:582-586
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 par(mfrow = c(1, 2))
@@ -285,7 +302,7 @@ plot(u1, BLUP_u1); abline(0, 1, lty = 2, col = 3)
 
 
 ###################################################
-### code chunk number 38: gaston.Rnw:557-560
+### code chunk number 40: gaston.Rnw:595-598
 ###################################################
 K2 <- tcrossprod(Z2)
 fit2 <- lmm.aireml(y2, X, K = list(K1, K2), verbose = FALSE)
@@ -293,7 +310,7 @@ str(fit2)
 
 
 ###################################################
-### code chunk number 39: gaston.Rnw:569-574
+### code chunk number 41: gaston.Rnw:607-612
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 par(mfrow = c(1, 2))
@@ -304,7 +321,7 @@ plot(Z2 %*% u2, omega2); abline(0, 1, lty = 2, col = 3)
 
 
 ###################################################
-### code chunk number 40: gaston.Rnw:601-604
+### code chunk number 42: gaston.Rnw:639-642
 ###################################################
 eiK1 <- eigen(K1)
 fit.d <- lmm.diago(y, X, eiK1)
@@ -312,7 +329,7 @@ str(fit.d)
 
 
 ###################################################
-### code chunk number 41: gaston.Rnw:614-618
+### code chunk number 43: gaston.Rnw:652-656
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 TAU <- seq(0.5,2.5,length=50)
@@ -322,7 +339,7 @@ lik.contour(TAU, S2, lik, heat = TRUE, xlab = "tau", ylab = "sigma^2")
 
 
 ###################################################
-### code chunk number 42: gaston.Rnw:651-655
+### code chunk number 44: gaston.Rnw:689-693
 ###################################################
 set.seed(1)
 n <- 2000
@@ -331,19 +348,19 @@ y <- 2 + lmm.simu(tau = 1, sigma2 = 2, eigenK = R$eigen)$y
 
 
 ###################################################
-### code chunk number 43: gaston.Rnw:660-661
+### code chunk number 45: gaston.Rnw:698-699
 ###################################################
 fit <- lmm.diago(y, eigenK = R$eigen)
 
 
 ###################################################
-### code chunk number 44: gaston.Rnw:664-665
+### code chunk number 46: gaston.Rnw:702-703
 ###################################################
 h2 <- fit$tau/(fit$tau + fit$sigma)
 
 
 ###################################################
-### code chunk number 45: gaston.Rnw:675-678
+### code chunk number 47: gaston.Rnw:713-716
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 H2 <- seq(0,1,length=51)
@@ -352,14 +369,14 @@ plot(H2, exp(lik$likelihood-max(lik$likelihood)), type="l", yaxt="n", ylab="like
 
 
 ###################################################
-### code chunk number 46: gaston.Rnw:686-688
+### code chunk number 48: gaston.Rnw:724-726
 ###################################################
 PC <- sweep(R$eigen$vectors, 2, sqrt(R$eigen$values), "*")
 y1 <- 2 + PC[,1:2] %*% c(5,5) + lmm.simu(tau = 1, sigma2 = 2, eigenK = R$eigen)$y
 
 
 ###################################################
-### code chunk number 47: gaston.Rnw:692-696
+### code chunk number 49: gaston.Rnw:730-734
 ###################################################
 fit0 <- lmm.diago(y1, eigenK = R$eigen)
 fit0$tau/(fit0$tau+fit0$sigma2)
@@ -368,29 +385,29 @@ fit10$tau/(fit10$tau+fit10$sigma2)
 
 
 ###################################################
-### code chunk number 48: gaston.Rnw:720-723
+### code chunk number 50: gaston.Rnw:758-761
 ###################################################
 data(AGT)
-x <- set.stats(as.bed.matrix(AGT.gen, AGT.fam, AGT.bim))
+x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 standardize(x) <- 'mu'
 
 
 ###################################################
-### code chunk number 49: gaston.Rnw:727-729
+### code chunk number 51: gaston.Rnw:765-767
 ###################################################
 set.seed(1)
 R <- random.pm(nrow(x))
 
 
 ###################################################
-### code chunk number 50: gaston.Rnw:733-735
+### code chunk number 52: gaston.Rnw:771-773
 ###################################################
 y <- 2 + x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) +
      lmm.simu(tau = 0.3, sigma2 = 1, eigenK=R$eigen)$y
 
 
 ###################################################
-### code chunk number 51: gaston.Rnw:742-745
+### code chunk number 53: gaston.Rnw:780-783
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 t <- association.test(x, y, eigenK = R$eigen)
@@ -399,7 +416,7 @@ plot(-log10(t$p), xlab="SNP index", ylab = "-log(p)",
 
 
 ###################################################
-### code chunk number 52: gaston.Rnw:755-757
+### code chunk number 54: gaston.Rnw:793-795
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 lds <- LD(x, 351, c(1,ncol(x)))

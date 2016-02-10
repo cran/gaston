@@ -55,7 +55,9 @@ Efficient algorithms for Linear Mixed Model (AIREML, diagonalisation trick).}
   \code{\link{select.inds}} and \code{\link{select.snps}} can also be used for 
   subsetting with a nice syntax.
 
-  Some basic descriptive statistics can be added to a bed.matrix with \code{\link{set.stats}};
+  Some basic descriptive statistics can be added to a bed.matrix with \code{\link{set.stats}} (since
+  \code{gaston 1.4}, this function is called by default by all functions that create a bed.matrix, unless
+  \code{options(gaston.auto.set.stats = FALSE)} was set.
   Hardy-Weinberg Equilibrium can be tested for all SNPs with \code{\link{set.hwe}}. 
 }
 

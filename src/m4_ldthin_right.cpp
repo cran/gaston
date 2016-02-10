@@ -31,7 +31,7 @@ LogicalVector ld_thin_right(XPtr<matrix4> pA, NumericVector mu, NumericVector sd
     int chr_i = chr(i);
     double mu_i = mu(i);
     double sd_i = sd(i);
-    int next_i;
+    int next_i = 0;
     bool gotnexti = false;
     while(j <= end && pos(j) < max_pos && chr(j) == chr_i) {
       if(debug) std::cout << "\ni = " << i << " j = " << j;

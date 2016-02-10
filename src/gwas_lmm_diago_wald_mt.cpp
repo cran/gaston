@@ -13,7 +13,7 @@ using namespace RcppParallel;
 
 struct paraWald : public Worker {
   // input
-  char ** const data;
+  uint8_t ** const data;
   size_t ncol;
   size_t true_ncol;
   size_t firstsnp;
@@ -29,7 +29,7 @@ struct paraWald : public Worker {
   // output
   double * H2, * BETA, * SDBETA;
 
-  paraWald(char ** const data, size_t ncol, size_t true_ncol, size_t firstsnp, const double * mu, const MatrixXd & x, const MatrixXd & y, const Map_MatrixXd & sigma, 
+  paraWald(uint8_t ** const data, size_t ncol, size_t true_ncol, size_t firstsnp, const double * mu, const MatrixXd & x, const MatrixXd & y, const Map_MatrixXd & sigma, 
            const Map_MatrixXd & u, int n, int r, int p, double tol, double min_h2, double max_h2, double * H2, double * BETA, 
            double * SDBETA) : data(data), ncol(ncol), true_ncol(true_ncol), firstsnp(firstsnp), x_(x), y(y), sigma(sigma), 
            u(u), n(n), r(r), p(p), tol(tol), min_h2_(min_h2), max_h2_(max_h2), H2(H2), BETA(BETA), SDBETA(SDBETA) {}
@@ -65,14 +65,14 @@ struct paraWald : public Worker {
     for(int i = beg; i < end; i++) {
       // remplir dernière colonne de x : récupérer SNP, multiplier par u'...
       for(int ii = 0; ii < true_ncol-1; ii++) {
-        char xx = data[firstsnp+i][ii];
+        uint8_t xx = data[firstsnp+i][ii];
         for(int ss = 0; ss < 4; ss++) {
           SNP(4*ii+ss) = ((xx&3) != 3)?(xx&3):mu[i];
           xx >>= 2;
         }
       }
       { int ii = true_ncol-1;
-        char xx = data[firstsnp+i][ii];
+        uint8_t xx = data[firstsnp+i][ii];
         for(int ss = 0; ss < 4 && 4*ii+ss < ncol; ss++) {
           SNP(4*ii+ss) = ((xx&3) != 3)?(xx&3):mu[i];
           xx >>= 2;

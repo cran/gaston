@@ -37,7 +37,6 @@
 # Load data
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
-x <- set.stats(x)
 
 # Compute LD
 ld.x <- LD(x, c(1,ncol(x)))

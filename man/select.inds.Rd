@@ -32,7 +32,6 @@ in the data frame \code{x@ped}, that is
 # Load data
 data(LCT)
 x <- as.bed.matrix(LCT.gen, LCT.fam, LCT.bim)
-x <- set.stats(x)
 
 # Select individuals with a call rate > 95% 
 # and more than 5% of heterozygous genotypes

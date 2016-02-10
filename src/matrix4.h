@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Rcpp.h>
+#include <stdint.h>
 #define DEBUG false
 
 using namespace Rcpp;
@@ -7,11 +8,11 @@ using namespace Rcpp;
 // matrices qui stockent de façon compacte des valeurs de 1 à 4
 class proxy_matrix4 {
   public:
-    proxy_matrix4(char * r, size_t b) : ref(r), j(b) {}
+    proxy_matrix4(uint8_t * r, size_t b) : ref(r), j(b) {}
     // set value
     inline int operator=(int x) { 
       // Rcout << "proxy set, j = " << j << ", int x = " << x << "\n";
-      char & a = ref[j/4];
+      uint8_t & a = ref[j/4];
       a &= ~(3 << ((j%4)*2));  // set to 00
       a |= (x << ((j%4)*2)); // set to x
       return x;
@@ -28,7 +29,7 @@ class proxy_matrix4 {
       return((int) ((ref[j/4] >> ((j%4)*2)) & 3));
     }
   private:  
-    char * ref;
+    uint8_t * ref;
     size_t j;
 };
 
@@ -49,12 +50,12 @@ class matrix4 {
     matrix4& operator=(const NumericMatrix);
 
     // set and get
-    inline char get(size_t i, size_t j) const;
+    inline uint8_t get(size_t i, size_t j) const;
     // void set(size_t i, size_t j, int val);
-    inline void set(size_t i, size_t j, char val);
+    inline void set(size_t i, size_t j, uint8_t val);
 
     // ()
-    inline char operator()(size_t i, size_t j) const;
+    inline uint8_t operator()(size_t i, size_t j) const;
     proxy_matrix4 operator()(size_t i, size_t j) {
       // Rcout << "cree proxy i = " << i << ", j = " << j << "\n";
       return proxy_matrix4(data[i], j);
@@ -67,11 +68,11 @@ class matrix4 {
 
     size_t nrow, ncol;
     size_t true_ncol;
-    char ** data;
+    uint8_t ** data;
     void allocations() {
-      data = new char * [nrow];
+      data = new uint8_t * [nrow];
       for(size_t i = 0; i < nrow; i++) {
-        data[i] = new char [true_ncol];
+        data[i] = new uint8_t [true_ncol];
         // on initialise avec des 3 partout (3 -> NA)
         // important pour accélérer certaines fonctions que la matrice soit bordée avec des NA
         std::fill(data[i], data[i]+true_ncol, 255);
@@ -80,17 +81,17 @@ class matrix4 {
 };
 
 // set and get
-char matrix4::get(size_t i, size_t j) const {
+uint8_t matrix4::get(size_t i, size_t j) const {
   return((int) ((data[i][j/4] >> ((j%4)*2)) & 3));
 }
 
-void matrix4::set(size_t i, size_t j, char val) {
-  char & a = data[i][j/4];
+void matrix4::set(size_t i, size_t j, uint8_t val) {
+  uint8_t & a = data[i][j/4];
   a &= ~(3 << ((j%4)*2));  // set to 00
   a |= (val << ((j%4)*2)); // set to val
 }
 
-char matrix4::operator()(size_t i, size_t j) const {
+uint8_t matrix4::operator()(size_t i, size_t j) const {
   #if DEBUG
   Rcout << "(const) int(), i = " << i << ", j = " << j << "n";
   #endif

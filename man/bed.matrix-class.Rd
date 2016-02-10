@@ -16,8 +16,7 @@
 \alias{\%*\%,bed.matrix,vector-method}
 \alias{\%*\%,vector,bed.matrix-method}
 \alias{as.matrix,bed.matrix-method}
-\alias{as.bed.matrix}
-\alias{as.bed.matrix,matrix,data.frameOrNULL,data.frameOrNULL-method}
+\alias{matrix,data.frameOrNULL,data.frameOrNULL-method}
 \alias{standardize}
 \alias{standardize,bed.matrix-method}
 \alias{standardize<-}
@@ -85,8 +84,6 @@ Objects can be created by calls of the form \code{new("bed.matrix", ...)}.
     \item{as.matrix}{\code{signature(x = "bed.matrix")}: 
              \cr Convert a \code{bed.matrix} into a \code{matrix}.
 	     The resulting matrix can be huge, use this method only for a small bed.matrix! }
-    \item{as.bed.matrix}{\code{signature(x = "matrix", ped="data.frame" or "NULL",}\cr\code{bim="data.frame" or "NULL")}: 
-             \cr Creates a \code{bed.matrix} from a numerical matrix and two (optional) data frames. See example of usage in \code{\link{LCT}}. }
     \item{standardize}{\code{signature(x = "bed.matrix")}: 
              \cr Get the standardize parameter of \code{bed.matrix}. Can be "none", "p" or "mu_sigma". }
     \item{standardize<-}{\code{signature(x = "bed.matrix")}:
@@ -123,10 +120,18 @@ Objects can be created by calls of the form \code{new("bed.matrix", ...)}.
 \examples{
 showClass("bed.matrix")
 
-# Load example
+# Conversion example
 data(LCT)
-x <- as.bed.matrix(LCT.gen, LCT.fam, LCT.bim)
-x
+x1 <- as(LCT.gen, "bed.matrix")
+x1
+head(x1@ped)
+head(x1@snps)
+
+# the function as.bed.matrix is an alternative
+x2 <- as.bed.matrix(LCT.gen, LCT.fam, LCT.bim)
+x2
+head(x2@ped)
+head(x2@snps)
 }
 
 \keyword{classes}

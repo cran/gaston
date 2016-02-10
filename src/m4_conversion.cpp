@@ -32,14 +32,14 @@ IntegerMatrix m4_as012(XPtr<matrix4> pA) {
   IntegerMatrix X(pA->ncol, pA->nrow);
   for(int j = 0; j < X.ncol(); j++) {
     for(int i = 0; i < pA->true_ncol-1; i++) {
-      char x = pA->data[j][i];
+      uint8_t x = pA->data[j][i];
       for(int ss = 0; ss < 4; ss++) {
         X(4*i+ss,j) = ((x&3) != 3)?(x&3):NA_INTEGER;
         x >>= 2;
       }
     }
     int i = pA->true_ncol-1;
-    char x = pA->data[j][i];
+    uint8_t x = pA->data[j][i];
     for(int ss = 0; ss < 4 && 4*i+ss < pA->ncol; ss++) {
       X(4*i+ss,j) = ((x&3) != 3)?(x&3):NA_INTEGER;
       x >>= 2;
@@ -58,14 +58,14 @@ NumericMatrix m4_as_scaled_matrix_p(XPtr<matrix4> pA, NumericVector p) {
                      (1-2*p[j])/sqrt(2*p[j]*(1-p[j])), 
                      (2-2*p[j])/sqrt(2*p[j]*(1-p[j])), NA_REAL };
     for(int i = 0; i < pA->true_ncol-1; i++) {
-      char x = pA->data[j][i];
+      uint8_t x = pA->data[j][i];
       for(int ss = 0; ss < 4; ss++) {
         X(4*i+ss,j) = gg[x&3]; // ((x&3) != 3)?gg[x&3]:NA_REAL;
         x >>= 2;
       }
     }
     int i = pA->true_ncol-1;
-    char x = pA->data[j][i];
+    uint8_t x = pA->data[j][i];
     for(int ss = 0; ss < 4 && 4*i+ss < pA->ncol; ss++) {
       X(4*i+ss,j) = gg[x&3]; // ((x&3) != 3)?gg[x&3]:NA_REAL;
       x >>= 2;
@@ -83,14 +83,14 @@ NumericMatrix m4_as_scaled_matrix_mu_sigma(XPtr<matrix4> pA, NumericVector mu, N
   for(int j = 0; j < X.ncol(); j++) {
     double gg[4] = { -mu[j]/sigma[j], (1-mu[j])/sigma[j], (2-mu[j])/sigma[j], NA_REAL };
     for(int i = 0; i < pA->true_ncol-1; i++) {
-      char x = pA->data[j][i];
+      uint8_t x = pA->data[j][i];
       for(int ss = 0; ss < 4; ss++) {
         X(4*i+ss,j) = gg[x&3]; // ((x&3) != 3)?gg[x&3]:NA_REAL;
         x >>= 2;
       }
     }
     int i = pA->true_ncol-1;
-    char x = pA->data[j][i];
+    uint8_t x = pA->data[j][i];
     for(int ss = 0; ss < 4 && 4*i+ss < pA->ncol; ss++) {
       X(4*i+ss,j) = gg[x&3]; // ((x&3) != 3)?gg[x&3]:NA_REAL;
       x >>= 2;

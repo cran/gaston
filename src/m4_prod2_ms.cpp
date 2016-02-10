@@ -51,7 +51,7 @@ struct paraPro2 : public Worker {
       for(size_t c = 0; c < r; c++) {
         size_t k = c*ncol;
         for(size_t j = 0; j < true_ncol; j++) {
-          char x = A.data[i][j];
+          uint8_t x = A.data[i][j];
           for(int ss = 0; ss < 4 && (4*j + ss) < ncol; ss++) {
             vA[k++] += v[A.nrow*c+i]*gg[x&3];
             x >>= 2;

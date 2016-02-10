@@ -50,7 +50,7 @@ void blocki(Eigen::MatrixXd & x, int x1, int n, Eigen::MatrixXd & y, int y1, dou
   int m2 = n-m1;
 
   Block<MatrixXd> A = x.block(x1,x1,m1,m1); 
-  Block<MatrixXd> D = x.block(x1+m1,x1+m1,m2,m2); 
+  //Block<MatrixXd> D = x.block(x1+m1,x1+m1,m2,m2); 
   Block<MatrixXd> B = x.block(x1,x1+m1,m1,m2); 
 
   Block<MatrixXd> TL = y.block(y1,y1,m1,m1);

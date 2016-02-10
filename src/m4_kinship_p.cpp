@@ -58,20 +58,20 @@ struct paraKin_p : public Worker {
       gg[5] = v1*v1;
       gg[6] = gg[9] = v2*v1;
       gg[10] = v2*v2;
-      char * dd = A.data[i];
+      uint8_t * dd = A.data[i];
       for(size_t j1 = 0; j1 < true_ncol; j1++) {
-        char x1 = dd[j1];
+        uint8_t x1 = dd[j1];
         for(unsigned int ss1 = 0; (ss1 < 4) && (4*j1 + ss1 < ncol); ss1++) {
           Ktype * ggg = gg + ((x1&3)<<2);
           for(size_t j2 = 0; j2 < j1; j2++) {
-            char x2 = dd[j2];
+            uint8_t x2 = dd[j2];
             for(unsigned int ss2 = 0; ss2 < 4; ss2++) {
               K[k++] += ggg[x2&3];
               x2 >>= 2;
             }
           }
           size_t j2 = j1;
-          char x2 = dd[j2];
+          uint8_t x2 = dd[j2];
           for(unsigned int ss2 = 0; ss2 <= ss1; ss2++) {
             K[k++] += ggg[x2&3];
             x2 >>= 2;

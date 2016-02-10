@@ -73,14 +73,14 @@ List GWAS_lmm_lrt(XPtr<matrix4> pA, NumericVector mu, NumericVector Y, NumericMa
   for(int i = beg; i <= end; i++) {
     // remplir dernière colonne de x : récupérer SNP, multiplier par u'...
     for(int ii = 0; ii < pA->true_ncol-1; ii++) {
-      char x = pA->data[i][ii];
+      uint8_t x = pA->data[i][ii];
       for(int ss = 0; ss < 4; ss++) {
         SNP(4*ii+ss) = ((x&3) != 3)?(x&3):mu(i);
         x >>= 2;
       }
     }
     { int ii = pA->true_ncol-1;
-      char x = pA->data[i][ii];
+      uint8_t x = pA->data[i][ii];
       for(int ss = 0; ss < 4 && 4*ii+ss < pA->ncol; ss++) {
         SNP(4*ii+ss) = ((x&3) != 3)?(x&3):mu(i);
         x >>= 2;

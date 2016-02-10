@@ -2,19 +2,24 @@
 #include <RcppParallel.h>
 #include <iostream>
 #include <ctime>
+#include <limits>
 
 double hwe0(int a0, int a1, int a2) {
+  int n = a0 + a1 + a2;
+  if(n == 0)  // no data
+    return std::numeric_limits<double>::quiet_NaN();
+  if( (a0 == 0 && a1 == 0) || (a1 == 0 && a2 == 0)) // monomorphe
+    return 1;
   if(a2 > a0) { // swap
     int tmp = a2;
     a2 = a0;
     a0 = tmp;
   }
-  int n = a0 + a1 + a2;
   int m = 2*a2+a1; // allèles rares
   int s = ((2*n-m)*m)/(2*n);
   if(s%2 != m%2) s++;
   double grand_sum(1), small_sum(0);
-  double target;
+  double target = 0; // juste pour supprimer le warning sur l'initiatilisation
   if(a1 < s) { // on calcule d'abord pour b1 < s
     int b2 = (m-s)/2;
     int b1 = s;

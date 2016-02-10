@@ -49,12 +49,17 @@ bed.loadings <- function(x, pc) {
   if(is.vector(pc)) dim(pc) <- c(length(pc),1)
   if(!is.matrix(pc)) stop("pc must be a matrix of PCs")
   if(!is(x, "bed.matrix")) stop("x must be a bed.matrix")
+  if(!x@standardize_mu_sigma & !x@standardize_p) {
+    if(!is.null(x@p)) 
+      x@standardize_p <- TRUE
+    else stop("Can't center/scale x for LD computation (use set.stat)\n")
+ }
+
   if(x@standardize_mu_sigma)
     a <- .Call("gg_m4_pc_to_loading_ms", PACKAGE="gaston", x@bed, x@mu, x@sigma, pc)
   else if(x@standardize_p)
     a <- .Call("gg_m4_pc_to_loading_p",  PACKAGE="gaston", x@bed, x@p, pc)
-  else
-    stop("bed.matrix must be center/scaled")
+
   a <- a/sqrt(ncol(x))
   a <- sweep(a, 2L, sqrt(colSums(a**2)), "/")
   if(!is.null(x@snps$id)) {

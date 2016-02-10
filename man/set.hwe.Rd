@@ -43,9 +43,6 @@ The function \code{set.stats} will be called first if necessary.
 data(LCT)
 x <- as.bed.matrix(LCT.gen, LCT.fam, LCT.bim)
 
-# Compute statistics
-x <- set.stats(x)
-
 # Compute Hardy-Weinberg p-values
 x <- set.hwe(x)
 head( x@snps[,c("id","hwe")] )

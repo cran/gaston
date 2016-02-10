@@ -54,7 +54,7 @@ matrix4::matrix4(RawMatrix x) {
   allocations();
   for(size_t i = 0; i < nrow; i++) {
     for(size_t j = 0; j < ncol; j++) {
-      char u = NumericMatrix::is_na(x(j,i))?3:(char) x(j,i);
+      uint8_t u = NumericMatrix::is_na(x(j,i))?3:(uint8_t) x(j,i);
       set(i,j, (u>>2 == 0?u:3));
     }
   }
@@ -123,19 +123,19 @@ void matrix4::fill_line(size_t li, NumericVector w) {
   // on efface la ligne
   std::fill(data[li], data[li]+true_ncol, 255);
   for(size_t i = 0; i < true_ncol - 1; i++) {
-    char &a = data[li][i];      
+    uint8_t &a = data[li][i];      
     for(int ss = 0; ss < 4; ss++) {
       a <<= 2;
-      char x = NumericVector::is_na(w[4*i+3-ss])?3:(char) w[4*i+3-ss];
+      uint8_t x = NumericVector::is_na(w[4*i+3-ss])?3:(uint8_t) w[4*i+3-ss];
       a |= (x >> 2 == 0?x:3);
     }
   }
   size_t i = true_ncol - 1;
-  char &a = data[li][i];
+  uint8_t &a = data[li][i];
   for(int ss = 4*i+4-ncol; ss < 4; ss++) {
     a <<= 2;
-    char x = NumericVector::is_na(w[4*i+3-ss])?3:(char) w[4*i+3-ss];
-    // char x = (char) w(4*i+3-ss);
+    uint8_t x = NumericVector::is_na(w[4*i+3-ss])?3:(uint8_t) w[4*i+3-ss];
+    // uint8_t x = (uint8_t) w(4*i+3-ss);
     a |= ((x >> 2 == 0)?x:3);
   }
 }
@@ -143,17 +143,17 @@ void matrix4::fill_line(size_t li, NumericVector w) {
 
 // set and get 
 /*
-char matrix4::get(size_t i, size_t j) const {
+uint8_t matrix4::get(size_t i, size_t j) const {
   return((int) ((data[i][j/4] >> ((j%4)*2)) & 3));
 }
 
-void matrix4::set(size_t i, size_t j, char val) {
-  char & a = data[i][j/4];
+void matrix4::set(size_t i, size_t j, uint8_t val) {
+  uint8_t & a = data[i][j/4];
   a &= ~(3 << ((j%4)*2));  // set to 00
   a |= (val << ((j%4)*2)); // set to val
 }
 
-char matrix4::operator()(size_t i, size_t j) const {
+uint8_t matrix4::operator()(size_t i, size_t j) const {
   #if DEBUG
   Rcout << "(const) int(), i = " << i << ", j = " << j << "n";
   #endif
