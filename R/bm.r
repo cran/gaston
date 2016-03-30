@@ -106,10 +106,10 @@ setMethod(show, signature("bed.matrix"),
       } else 
         cat("snps stats are not set (or incomplete)\n")
       # ped stats et autres
-      if(anyDuplicated(object@snps$id)) cat("There are some duplicated individual id's\n")
+      if(anyDuplicated(object@ped$id)) cat("There are some duplicated individual id's\n")
       if(all(pedstatnames %in% names(object@ped))) {
         cat("ped stats are set\n");
-        a <- sum(object@ped$NAs == nrow(object))
+        a <- sum(object@ped$NAs == ncol(object))
         if(a > 1)  cat("  There are ", a, " individuals with a callrate equal to zero\n");
         if(a == 1) cat("  There is one individual with a callrate equal to zero\n");
       } else cat("ped stats are not set (or incomplete)\n")

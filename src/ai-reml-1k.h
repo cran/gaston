@@ -13,7 +13,6 @@ void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> &
                   bool verbose, Vector2d & theta, double & logL, double & logL0, int & niter, double & gr_norm, 
                   VectorXd & Py, VectorXd & KPy, bool start_theta) {
   int n(y.rows());
- 
   double var_y = y.squaredNorm()/n; // eh oui, pas d'effet fixe : Y est supposé centré !!
 
   // if(verbose) Rcout << "var(Y) = " << var_y << "\n";
@@ -21,7 +20,7 @@ void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> &
   MatrixXd P(n,n), Delta(n,n);
   VectorXd PPy(n), PKPy(n);
   
-  Vector2d theta0, gr;
+  Vector2d theta0, gr, gr_cst;
   Matrix2d AI;
   double log_detV, detV, old_logL;
 
@@ -61,7 +60,7 @@ void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> &
         EMsteps = EMsteps_fail;
         if(verbose) Rcout << "[Iteration " << i+1 << "] AI algorithm failed to improve likelihood, trying " 
                           << EMsteps << "EM step\n"; 
-        theta = theta0;
+        // theta = theta0;
         continue;
       }
     }
@@ -87,11 +86,34 @@ void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> &
       EMsteps--;
     } else {
 
-      if(constraint) { // on débloque les paramètres si le gradient ne pointe plus hors de la boîte
-        if(bloc_s2  && gr(0) > 0) bloc_s2  = false; 
-        if(bloc_tau && gr(1) > 0) bloc_tau = false;
+      if(constraint) { 
+        // gradient contraint 
+        if(bloc_s2)  gr_cst(0) = 0; else gr_cst(0) = gr(0);
+        if(bloc_tau) gr_cst(1) = 0; else gr_cst(1) = gr(1);
+
+        // si on a convergé avec la contrainte, on regarde s'il faut débloquer des paramètres 
+        // ie si le gradient ne pointe plus hors de la boîte
+        if( gr_cst.norm() < eps && (bloc_s2 || bloc_tau) ) {
+          if(verbose) Rcout << "[Iteration " << i+1 << "] Checking gradient components signs before last iteration\n";
+          if(bloc_s2) {
+             if(gr(0) > 0) { 
+               bloc_s2  = false; 
+               gr_cst(0) = gr(0); 
+               if(verbose) Rcout << "  Releasing constraint on sigma^2\n";
+             } 
+          }
+          if(bloc_tau) {
+             if(gr(1) > 0) { 
+               bloc_tau = false; 
+               gr_cst(1) = gr(1); 
+               if(verbose) Rcout << "  Releasing constraint on tau\n";
+             }
+          }
+        }
+        gr = gr_cst;
       }
 
+      // Rcout << "gradient projeté = " << gr.transpose() << "\n";
       // Average Information
       AI(0,0) = 0.5*PPy.dot(Py);
       AI(1,0) = AI(0,1) = 0.5*PPy.dot(KPy);
@@ -101,19 +123,44 @@ void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> &
 
       if(constraint && bloc_s2) {
         theta(1) += gr(1)/AI(1,1);
-        gr(0) = 0;
       }
       else if(constraint && bloc_tau) {
         theta(0) += gr(0)/AI(0,0);
-        gr(1) = 0;
       }
       else {
         theta += AI.inverse()*gr;
       }
+
       if(constraint) {
-        if(theta(0)  < min_s2)  { theta(0) = min_s2;  bloc_s2  = true; }
-        if(theta(1)  < min_tau) { theta(1) = min_tau; bloc_tau = true; }
+        double lambda = 1;
+        int a_bloquer = -1; // nécessaire pour pallier aux erreurs d'arrondi après le re-calcul de theta
+        if(theta(0) < min_s2) {
+          double lambda0 = (min_s2 - theta0(0))/(theta(0)-theta0(0)); 
+          if(lambda0 < lambda) { // forcément vrai ici...
+             lambda = lambda0;
+             a_bloquer = 0;
+          }
+        }
+        if(theta(1) < min_tau) {
+          double lambda0 = (min_tau - theta0(1))/(theta(1)-theta0(1)); 
+          if(lambda0 < lambda) { // ...mais pas ici !
+             lambda = lambda0;
+             a_bloquer = 1;
+          }
+        }
+        theta = theta0 + lambda*(theta-theta0);
+        // normalement le rôle de lambda est qu'on ne devrait pas être en-dessous des minima ci-après
+        // mais il faut penser aux erreurs d'arrondi... bref ceinture et bretelles
+        if(theta(0) < min_s2  || a_bloquer == 0) {
+          theta(0) = min_s2;  bloc_s2  = true;  
+          if(verbose) Rcout << "[Iteration " << i+1 << "] Constraining sigma^2\n";
+        }
+        if(theta(1) < min_tau || a_bloquer == 1) {
+          theta(1) = min_tau; bloc_tau = true;
+          if(verbose) Rcout << "[Iteration " << i+1 << "] Constraining tau\n";
+        }
       }
+
       if(verbose) Rcout << "[Iteration " << i+1 << "] AI-REML update" << "\n";
       EM = false;
     }

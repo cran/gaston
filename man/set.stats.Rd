@@ -54,7 +54,7 @@ set.stats(x, set.ped_stats=TRUE, set.snps_stats=TRUE, set.p = TRUE,
 
 \author{ Hervé Perdry and Claire Dandine-Roulland }
 
-\seealso{ \code{\link{set.hwe}} }
+\seealso{ \code{\link{set.hwe}}, \code{\link{set.genomic.sex}} }
 
 \examples{
 # Disable auto set stats :

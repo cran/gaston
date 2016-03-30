@@ -14,23 +14,24 @@ using namespace RcppParallel;
 struct paraKin : public Worker {
   // input and others
   const matrix4 & A;
-  const std::vector<double> mu;
-  const std::vector<double> w;
+  const double * mu;
+  const double * w;
   const size_t ncol;
   const size_t true_ncol;
+  const size_t sizeK;
 
   // output
   Ktype * K;
   
   // constructeurs
-  paraKin(matrix4 & A, std::vector<double> mu, std::vector<double> w) : A(A), mu(mu), w(w), 
-        ncol(A.ncol), true_ncol(A.true_ncol) { 
-          K = new Ktype[(ncol*(ncol+1))/2];
-          std::fill(K, K+(ncol*(ncol+1))/2, 0);
+  paraKin(matrix4 & A, const double * mu, const double * w) : A(A), mu(mu), w(w), 
+        ncol(A.ncol), true_ncol(A.true_ncol), sizeK((4*true_ncol)*(4*true_ncol+1)/2) { 
+          K = new Ktype[sizeK];  // K is padded to a multiple of 4...
+          std::fill(K, K+sizeK, 0);
         }
-  paraKin(paraKin & Q, Split) : A(Q.A), mu(Q.mu), w(Q.w), ncol(Q.ncol), true_ncol(Q.true_ncol) {
-          K = new Ktype[(ncol*(ncol+1))/2];
-          std::fill(K, K+(ncol*(ncol+1))/2, 0);
+  paraKin(paraKin & Q, Split) : A(Q.A), mu(Q.mu), w(Q.w), ncol(Q.ncol), true_ncol(Q.true_ncol), sizeK(Q.sizeK) {
+          K = new Ktype[sizeK];  // K is padded to a multiple of 4...
+          std::fill(K, K+sizeK, 0);
         }
 
   // destructeur
@@ -40,8 +41,11 @@ struct paraKin : public Worker {
 
   // worker !
   void operator()(size_t beg, size_t end) {
-    Ktype gg[16];
-    gg[3] = gg[7] = gg[11] = gg[12] = gg[13] = gg[14] = gg[15] = 0;
+    Ktype H[4];
+    Ktype h0[32];
+    Ktype h1[32];
+    H[3] = 0;
+
     for(size_t i = beg; i < end; i++) {
       Ktype w_ = (Ktype) w[i]; 
       if(w_ == 0) continue;
@@ -49,31 +53,36 @@ struct paraKin : public Worker {
       Ktype v0 = -mu_*w_;
       Ktype v1 = (1-mu_)*w_;
       Ktype v2 = (2-mu_)*w_;
-
-      gg[0] = v0*v0; 
-      gg[1] = gg[4] = v1*v0;
-      gg[2] = gg[8] = v2*v0;
-      gg[5] = v1*v1;
-      gg[6] = gg[9] = v2*v1;
-      gg[10] = v2*v2;
-      uint8_t * dd = A.data[i];
+      H[0] = v0;
+      H[1] = v1;
+      H[2] = v2;
       
       size_t k = 0;
+      for(size_t a1 = 0; a1 < 4; a1++) {
+        for(size_t a2 = 0; a2 < 4; a2++) {
+          h0[k++] = H[a2];
+          h0[k++] = H[a1];
+        }
+      }
+
+      uint8_t * dd = A.data[i];
+      
+      k = 0;
       for(size_t j1 = 0; j1 < true_ncol; j1++) {
         uint8_t x1 = dd[j1];
-        for(unsigned int ss1 = 0; (ss1 < 4) && (4*j1 + ss1 < ncol); ss1++) {
-          Ktype * ggg = gg + ((x1&3)<<2);
+        for(unsigned int ss1 = 0; (ss1 < 4); ss1++) {
+          for(size_t a = 0; a < 32; a++) h1[a] = H[x1&3]*h0[a];
           for(size_t j2 = 0; j2 < j1; j2++) {
             uint8_t x2 = dd[j2];
-            for(int ss2 = 0; ss2 < 4; ss2++) {
-              K[k++] += ggg[x2&3];
-              x2 >>= 2;
-            }
+            K[k++] += h1[ (x2&15)<<1 ];
+            K[k++] += h1[ ((x2&15)<<1)+1 ];
+            K[k++] += h1[ (x2>>4)<<1 ];
+            K[k++] += h1[ ((x2>>4)<<1)+1 ];
           }
           size_t j2 = j1;
           uint8_t x2 = dd[j2];
           for(unsigned int ss2 = 0; ss2 <= ss1; ss2++) {
-            K[k++] += ggg[x2&3];
+            K[k++] += H[x1&3]*H[x2&3]; // h1[(x2&3)<<1];
             x2 >>= 2;
           } 
           x1 >>= 2; 
@@ -84,7 +93,7 @@ struct paraKin : public Worker {
 
   // recoller
   void join(const paraKin & Q) {
-    std::transform(K, K + (ncol*(ncol+1))/2, Q.K, K, std::plus<Ktype>());
+    std::transform(K, K + sizeK, Q.K, K, std::plus<Ktype>());
     // autrement dit : K += Q.K;
   }
 
@@ -95,7 +104,7 @@ struct paraKin : public Worker {
 
 // [[Rcpp::export]]
 NumericMatrix Kinship(XPtr<matrix4> p_A, const std::vector<double> & mu, const std::vector<double> & w, int chunk) {
-  paraKin X(*p_A, mu, w);
+  paraKin X(*p_A, &mu[0], &w[0]);
   parallelReduce(0, p_A->nrow, X, chunk);
 
   NumericMatrix Y(p_A->ncol,p_A->ncol);
@@ -110,7 +119,7 @@ NumericMatrix Kinship(XPtr<matrix4> p_A, const std::vector<double> & mu, const s
   k = 0;
   for(size_t i = 0; i < p_A->ncol; i++) {
     for(size_t j = 0; j <= i; j++) {
-      Y(i,j) = (double) X.K[k++]; // ou Y(j,i)
+      Y(i,j) = X.K[k++]; // ou Y(j,i);
     }
   }
   

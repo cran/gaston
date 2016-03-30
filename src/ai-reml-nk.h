@@ -1,6 +1,7 @@
 // [[Rcpp::depends(RcppEigen)]]
 #include <RcppEigen.h>
 #include <iostream>
+// #define ANY(_X_) (std::any_of(_X_.begin(), _X_.end(), [](bool x) {return x;})) 
 
 using namespace Rcpp;
 using namespace Eigen;
@@ -30,7 +31,7 @@ void AIREMLn_nofix(const Eigen::MatrixBase<T1> & y, const std::vector<T2,A> & K,
     PKPy.push_back(VectorXd(n));
   }
 
-  VectorXd theta0(s+1), gr(s+1);
+  VectorXd theta0(s+1), gr(s+1), gr_cst(s+1);
   MatrixXd AI(s+1, s+1), pi_AI(s+1,s+1);
   double log_detV, detV, old_logL, d, ld;
 
@@ -73,7 +74,7 @@ void AIREMLn_nofix(const Eigen::MatrixBase<T1> & y, const std::vector<T2,A> & K,
         EMsteps = EMsteps_fail;
         if(verbose) Rcout << "[Iteration " << i+1 << "] AI algorithm failed to improve likelihood, trying " 
                           << EMsteps << "EM step\n";    
-        theta = theta0;
+        // theta = theta0;
         continue;
       }
     }
@@ -92,21 +93,40 @@ void AIREMLn_nofix(const Eigen::MatrixBase<T1> & y, const std::vector<T2,A> & K,
 
     // updating theta
     theta0 = theta;
-if(EMsteps > 0) {
+    if(EMsteps > 0) {
       theta +=  theta0.cwiseProduct(theta0).cwiseProduct(gr)*EM_alpha*2/n; 
       if(verbose) Rcout << "[Iteration " << i+1 << "] EM update" << "\n";
       EM = true;
       EMsteps--;
-    } else {
-      if(constraint) { // on débloque les paramètres si le gradient ne pointe plus hors de la boîte
-        if(bloc_s2) {
-          if(gr(0) > 0) bloc_s2   = false; else gr(0) = 0;
+    } else { // AI-REML ******************************
+
+      if(constraint) {
+        // gradient contraint  
+        if(bloc_s2) gr_cst(0) = 0; else gr_cst(0) = gr(0);
+        for(int j = 0; j < s; j++) {
+          if(bloc_tau[j]) gr_cst(j+1) = 0; else gr_cst(j+1) = gr(j+1);
         }
-        for(int j = 0; j < s; j++) { 
-          if(bloc_tau[j]) {
-            if(gr(j+1) > 0) bloc_tau[j] = false; else gr(j+1) = 0;
+
+        // si on a convergé avec la contrainte, on regarde s'il faut débloquer des paramètres 
+        // ie si le gradient ne pointe plus hors de la boîte
+        if(gr_cst.norm() < eps && (bloc_s2 || any(bloc_tau))) {
+          if(verbose) Rcout << "[Iteration " << i+1 << "] Checking gradient components signs before last iteration\n";
+          if(bloc_s2) {
+             if(gr(0) > 0) {
+               bloc_s2  = false; gr_cst(0) = gr(0);
+               if(verbose) Rcout << "  Releasing constraint on sigma^2\n";
+             } 
+          }
+          for(int j = 0; j < s; j++) {
+            if(bloc_tau[j]) {
+               if(gr(j+1) > 0) {
+                 bloc_tau[j] = false; gr_cst(j+1) = gr(j+1);
+                 if(verbose) Rcout << "  Releasing constraint on tau[" << j+1 << "]\n";
+               }
+            }
           }
         }
+        gr = gr_cst;
       }
 
       // Average Information
@@ -131,24 +151,42 @@ if(EMsteps > 0) {
       // --------------------------
 
       if(constraint) {
+        double lambda = 1;
+        int a_bloquer = -1; // nécessaire pour pallier aux erreurs d'arrondi après le re-calcul de theta
         if(theta(0) < min_s2) { 
-          theta(0) = min_s2;
-          bloc_s2   = true;
-        } else {
-          bloc_s2   = false;
+           double lambda0 = (min_s2 - theta0(0))/(theta(0)-theta0(0));
+           if(lambda0 < lambda) { // forcément vrai ici...
+              lambda = lambda0;
+              a_bloquer = 0;
+           }
         }
         for(int j = 0; j < s; j++) {
           if(theta(j+1) < min_tau(j)) { 
-            theta(j+1) = min_tau(j);
-            bloc_tau[j] = true;
-          } else {
-            bloc_tau[j] = false;
+            double lambda0 = (min_tau(j) - theta0(j+1))/(theta(j+1)-theta0(j+1));
+            if(lambda0 < lambda) { // forcément vrai ici...
+              lambda = lambda0;
+              a_bloquer = j+1;
+            }
+          }
+        }
+        theta = theta0 + lambda*(theta-theta0);
+        // normalement le rôle de lambda est qu'on ne devrait pas être en-dessous des minima ci-après
+        // mais il faut penser aux erreurs d'arrondi... bref ceinture et bretelles
+        if(theta(0) < min_s2  || a_bloquer == 0) {
+          theta(0) = min_s2;  bloc_s2  = true;
+          if(verbose) Rcout << "[Iteration " << i+1 << "] Constraining sigma^2\n";
+        }
+        for(int j = 0; j < s; j++) {
+          if(theta(j+1) < min_tau(j) || a_bloquer == j+1) {
+            theta(j+1) = min_tau(j); bloc_tau[j] = true;
+            if(verbose) Rcout << "[Iteration " << i+1 << "] Constraining tau[" << j+1 << "]\n";
           }
         }
       }
+
       if(verbose) Rcout << "[Iteration " << i+1 << "] AI-REML update" << "\n";
       EM = false;
-    }
+    } // ****************************** fin AI-REML
 
     gr_norm = gr.norm();
     if(verbose) Rcout << "[Iteration " << i+1 << "] ||gradient|| = " << gr_norm << "\n";

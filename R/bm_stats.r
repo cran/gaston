@@ -27,8 +27,7 @@ set.stats <- function(x, set.ped_stats = TRUE, set.snps_stats = TRUE, set.p = TR
     x@snps[, names(st$snps)] <- st$snps
     x@ped[ , names(st$inds)] <- st$inds
     if(verbose) cat("ped stats and snps stats have been set. \n") 
-  } 
-  else if(set.snps_stats) {
+  } else if(set.snps_stats) {
     snps <- .Call('gg_geno_stats_snp', PACKAGE = 'gaston', x@bed)
 
     # completer snps
@@ -43,8 +42,7 @@ set.stats <- function(x, set.ped_stats = TRUE, set.snps_stats = TRUE, set.p = TR
     s <- sqrt( (snps$N1 + 4*snps$N2 + (4*snps$NAs)*pp**2)/(N-1)  - (pp)**2*(4*N/(N-1)) );
     x@snps[, names(snps)] <- snps
     if(verbose) cat("snps stats have been set. \n") 
-  } 
-  else if(set.ped_stats) { 
+  } else if(set.ped_stats) { 
     inds <- .Call('gg_geno_stats_ind', PACKAGE = 'gaston', x@bed) 
 
     # completer inds/ped
@@ -55,24 +53,22 @@ set.stats <- function(x, set.ped_stats = TRUE, set.snps_stats = TRUE, set.p = TR
     x@ped[ , names(inds)] <- inds
     if(verbose) cat("ped stats have been set. \n") 
   }
-  else {
+
+  if( all(c("N0", "N1", "N2", "NAs") %in% names(x@snps) )) {
     if(set.p | set.mu_sigma) {
-      n <- nrow(x) - x@snps_stats$NAs;
-      pp <- (2*x@snps_stats$N2 + x@snps_stats$N1)/(2*n);
+      n <- nrow(x) - x@snps$NAs;
+      pp <- (2*x@snps$N2 + x@snps$N1)/(2*n);
     }
     if(set.mu_sigma)
-      s <- sqrt( (x@snps_stats$N1 + 4*x@snps_stats$N2)/(n-1) - n*(2*pp)**2/(n-1) );
-  }
-
-
-  if(set.p) {
-    x@p <- pp
-    if(verbose) cat("'p' has been set. \n")
-  }
-
-  if(set.mu_sigma) {
-    x@mu <- 2*pp; x@sigma <- s
-    if(verbose) cat("'mu' and 'sigma' have been set.\n");
+      s <- sqrt( (x@snps$N1 + 4*x@snps$N2)/(n-1) - n*(2*pp)**2/(n-1) );
+    if(set.p) {
+      x@p <- pp
+      if(verbose) cat("'p' has been set. \n")
+    }
+    if(set.mu_sigma) {
+      x@mu <- 2*pp; x@sigma <- s
+      if(verbose) cat("'mu' and 'sigma' have been set.\n");
+    }
   }
   x
 }

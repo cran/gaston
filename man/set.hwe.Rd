@@ -4,7 +4,7 @@
 \title{ Hardy-Weinberg Equilibrium }
 
 \description{
-  Return an updated \code{\link{bed.matrix}} with a new variable for the \eqn{p}-values of an
+  Returns an updated \code{\link{bed.matrix}} with a new variable for the \eqn{p}-values of an
   Hardy-Weinberg Equilibrium test.
 }
 \usage{ set.hwe(x, method = c("chisquare", "exact"),
@@ -36,7 +36,7 @@ The function \code{set.stats} will be called first if necessary.
 
 \author{Hervé Perdry and Claire Dandine-Roulland}
 
-\seealso{ \code{\link{set.stats}} }
+\seealso{ \code{\link{set.stats}}, \code{\link{set.genomic.sex}} }
 
 \examples{
 # Load data

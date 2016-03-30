@@ -11,3 +11,9 @@
      new function reshape.GRM
      as.bed.matrix no longer is a method, but a function
      minor modifs in read.vcf
+     matrix4 now uses uint8_t array instead of char array (induced many 
+     small changes in the C++ code).
+1.4.5: corrected a bug in method 'show'
+       better handling of constraints in AIREML methods 
+       faster implementation of GRM
+       new function of genomic.sex

@@ -67,6 +67,10 @@ desc <- packageDescription("gaston")
   Thanks to the packages \verb!Rcpp!, \verb!RcppParallel!, \verb!RcppEigen!, Gaston
   functions are mainly written in C++. Many are multithreaded.
 
+  For better performances, we recommend to build Gaston with \verb!clang++!.
+  To do so, it is sufficient to create a file \verb!~/.R/Makevars! containing
+  \verb!CXX = clang++! 
+
   In this vignette, we illustrate Gaston using the included data sets \verb!AGT!, \verb!LCT!,
   and \verb!TTN! (see the corresponding manual pages for a description). 
   Gaston also includes some example files in the \verb!extdata! folder. 
@@ -94,7 +98,6 @@ desc <- packageDescription("gaston")
   The effects of this option is described in section \ref{stats}
   below. Note that some examples in the manual pages might not work if
   you use this option.
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -205,7 +208,8 @@ head(x@snps)
   Some simple descriptive statistics can be added to a bed.matrix with \verb!set.stats!.
   Since version 1.4 of gaston, this function is called by default by all functions that create 
   a bed.matrix, unless the global option \verb!options(gaston.auto.set.stats = FALSE)! was set.
-  This option can be used to gain some time in some particular cases.
+  This option can be used to gain some time in some particular cases. 
+
 
   We illustrate here the effect of this option:
 <<>>=
@@ -252,8 +256,23 @@ lines(t, sqrt(2*t*(1-t)), col="red")
 @
 \end{center}
 
-  There are options to \verb!set.stats! which alters its behavior, allowing to update
-  only some slots.
+  The option \verb!gaston.auto.set.stats! can be useful when extracting 
+  individuals from bed.matrices (seen next section): if
+  \verb!gaston.auto.set.stats = FALSE!, the slots \verb!@p!, \verb!@mu! and \verb!@sigma!
+  are left unaltered; in contrast, the default behavior is to call \verb!set.stats! 
+  which recomputes the values of these slots. 
+  Note that when using \verb!set.stats! ``manually'', one can use options to alter its behavior, 
+  allowing to update only some slots. The following code illustrates this:
+
+<<>>=
+head(x@p)
+y <- x[1:30,]
+head(y@p)
+y <- set.stats(y, set.p = FALSE)
+head(y@p)
+y <- set.stats(y)
+head(y@p)
+@
 
   Hardy-Weinberg Equilibrium can be tested for all SNPs simply by \verb!x <- set.hwe(x)!. 
   This command adds to the data frame \verb!x@snps! a column \verb!hwe!, containing the
@@ -262,7 +281,7 @@ lines(t, sqrt(2*t*(1-t)), col="red")
 
   Note that when writting a bed.matrix \verb!x! to disk with \verb!write.bed.matrix!, 
   the \verb!.rds! file contains all the slots of \verb!x!, and thus contains the additionnal
-  variables added by \verb!set.stats! or \verb!set.hwe!, which are note saved in the
+  variables added by \verb!set.stats! or \verb!set.hwe!, which are not saved in the
   \verb!.bim! and \verb!.fam! files.
 
   For the remaining of this vignette, we restore the default behaviour:
@@ -270,7 +289,6 @@ lines(t, sqrt(2*t*(1-t)), col="red")
 options(gaston.auto.set.stats = TRUE)
 @
 
-\vfill\eject
 \subsection{Subsetting bed.matrices}
 
   It is possible to subset bed.matrices just as base matrices, writing e.g.
@@ -312,7 +330,6 @@ select.snps(x, maf > 0.1 & hwe > 1e-3)
   except the \verb!p!, \verb!mu! and \verb!sigma! slots. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vfill\eject
 \section{Standardized matrices}
 
   Gaston allows to ``standardize'' a genotype matrix, replacing each genotype $X_{ij}$ ($i$ is the
@@ -374,6 +391,10 @@ y <- x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) + rnorm(nrow(x), sd = 1)
      GRM = {1\over q-1} X_sX_s'
   \end{equation*}
   where $q$ is the number of SNPs.  This computation is done by the function \verb!GRM!.  
+
+  \textbf{NOTE:} In the current version (1.4.5) of Gaston, \verb!GRM! uses all SNPs in the computation.
+  The user should extract a bed.matrix with only autosomal SNPs befaore calling GRM. This will
+  change in a future version.
 
   The Principal Component Analysis (PCA) of large genomic data sets is used to retrieve population
   stratification. It can be obtained from the eigen decomposition of the GRM. To illustrate this,
@@ -587,7 +608,7 @@ plot(u1, BLUP_u1); abline(0, 1, lty = 2, col = 3)
 @
 \end{center}
 
-  \subsubsection{Several random effects vector}
+  \subsubsection{Several random effects vectors}
 
   It is sufficient to give to \verb!lmm.aireml! a list with the two matrices
   $K_1$ and $K_2$:
