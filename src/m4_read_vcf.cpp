@@ -17,7 +17,7 @@ inline int onetab_str_token(char * & a, char * & token) {
 }
 
 // [[Rcpp::export]]
-List read_vcf(Function f, CharacterVector x, int nsamples, int nsnps) {
+List read_vcf(Function f, int nsamples, int nsnps) {
  
   List L;
   std::vector<std::string> id, ref, alt;
@@ -29,8 +29,15 @@ List read_vcf(Function f, CharacterVector x, int nsamples, int nsnps) {
   XPtr<matrix4> pX(new matrix4(nsnps, nsamples));
  
   int i = 0;
-  while(as<bool>(f()) && i < nsnps) {
-
+  while(i < nsnps) {
+    SEXP fres = f();
+    if (TYPEOF(fres) == LGLSXP && !as<bool>(fres)) {
+      break;
+    }
+    if (TYPEOF(fres) != STRSXP) {
+      Rf_error("VCF error, unexpected result from read function");
+    }
+    CharacterVector x(fres);
     char * a = (char *) x[0];
     char * t = a;
 
@@ -91,12 +98,21 @@ List read_vcf(Function f, CharacterVector x, int nsamples, int nsnps) {
 }
 
 // [[Rcpp::export]]
-int count_dia_vcf(Function f, CharacterVector x) {
+int count_dia_vcf(Function f) {
  
   int i = 0;
   std::string alt_;
   char * id_ = const_cast<char *>("(no SNP read yet)");
-  while(as<bool>(f())) {
+
+  for(;;) {
+    SEXP fres = f();
+    if (TYPEOF(fres) == LGLSXP && !as<bool>(fres)) {
+      break;
+    }
+    if (TYPEOF(fres) != STRSXP) {
+      Rf_error("VCF error, unexpected result from read function");
+    }
+    CharacterVector x(fres);
     char * a = (char *) x[0];
     char * t = a;
 
@@ -119,16 +135,15 @@ int count_dia_vcf(Function f, CharacterVector x) {
 }
 
 
-RcppExport SEXP gg_read_vcf(SEXP fSEXP, SEXP xSEXP, SEXP nsamplesSEXP, SEXP nsnpsSEXP) {
+RcppExport SEXP gg_read_vcf(SEXP fSEXP, SEXP nsamplesSEXP, SEXP nsnpsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Function >::type f(fSEXP );
-        Rcpp::traits::input_parameter< CharacterVector >::type x(xSEXP );
         Rcpp::traits::input_parameter< int >::type nsamples(nsamplesSEXP );
         Rcpp::traits::input_parameter< int >::type nsnps(nsnpsSEXP );
-        List __result = read_vcf(f, x, nsamples, nsnps);
+        List __result = read_vcf(f, nsamples, nsnps);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -137,14 +152,13 @@ END_RCPP
 }
 
 
-RcppExport SEXP gg_count_dia_vcf(SEXP fSEXP, SEXP xSEXP) {
+RcppExport SEXP gg_count_dia_vcf(SEXP fSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Function >::type f(fSEXP );
-        Rcpp::traits::input_parameter< CharacterVector >::type x(xSEXP );
-        int __result = count_dia_vcf(f, x);
+        int __result = count_dia_vcf(f);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

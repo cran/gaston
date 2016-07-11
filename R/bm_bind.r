@@ -8,7 +8,7 @@ setMethod("cbind", signature=c(...="bed.matrix"), definition= function(..., depa
         warning("Duplicated SNPs id's")
       if(any(duplicated(snps$pos)))
         warning("Duplicated SNPs pos's")
-      bed <- .Call("gg_bind_snps",  PACKAGE="gaston", M)
+      bed <- .Call("gg_bind_snps",  PACKAGE='gaston', M)
       x <- new("bed.matrix", bed = bed, snps = snps, ped = L[[1]]@ped,
                p = NULL, mu = NULL, sigma = NULL, 
                standardize_p = FALSE, standardize_mu_sigma = FALSE )
@@ -25,7 +25,7 @@ setMethod("rbind", signature=c(...="bed.matrix"), definition= function(..., depa
       ped <- Reduce(rbind, lapply(L, function(x) x@ped))
       if(any( duplicated(ped$famid) & duplicated(ped$id) )) 
         warning("Duplicated individuals (same family and individual id)")
-      bed <- .Call("gg_bind_inds",  PACKAGE="gaston", M)
+      bed <- .Call("gg_bind_inds",  PACKAGE='gaston', M)
       x <- new("bed.matrix", bed = bed, snps = L[[1]]@snps, ped = ped,
                p = NULL, mu = NULL, sigma = NULL, 
                standardize_p = FALSE, standardize_mu_sigma = FALSE )

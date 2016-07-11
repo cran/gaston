@@ -42,7 +42,7 @@ x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 ld.x <- LD(x, c(1,ncol(x)))
 
 # Plot with LDheatmap from the package LDheatmap
-LDheatmap(ld.x, genetic.distances=x@snps$pos)
+LDheatmap::LDheatmap(ld.x, genetic.distances=x@snps$pos)
 
 }
 

@@ -12,7 +12,7 @@ lmm.aireml(Y, X = matrix(1, nrow = length(Y)), K,
            EMsteps = 0L, EMsteps_fail = 1L, EM_alpha = 1,
            min_tau, min_s2 = 1e-06, theta, constraint = TRUE, max_iter = 50L,
            eps = 1e-05, verbose = getOption("gaston.verbose", TRUE),
-           contrast = FALSE) }
+           contrast = FALSE, get.P = FALSE) }
 
 \arguments{
   \item{Y}{ Phenotype vector }
@@ -29,6 +29,7 @@ lmm.aireml(Y, X = matrix(1, nrow = length(Y)), K,
   \item{eps}{ The algorithm stops when the gradient norm is lower than this parameter }
   \item{verbose}{ If \code{TRUE}, display information on the algorithm progress }
   \item{contrast}{ If \code{TRUE}, use a contrast matrix to compute the Restricted Likelihood (usually slower)}
+  \item{get.P}{If \code{TRUE}, the function sends back the last matrix \eqn{P} computed in the optimization process}
 }
 
 \details{
@@ -59,11 +60,14 @@ lmm.aireml(Y, X = matrix(1, nrow = length(Y)), K,
     \item{logL0}{ Value of log-likelihood under the null model (without random effect) }
     \item{niter}{ Number of iterations done }
     \item{norm_grad}{ Last computed gradient's norm }
+    \item{P}{ Last computed value of matrix P (see reference) }
     \item{Py}{ Last computed value of vector Py (see reference) }
     \item{BLUP_omega}{ BLUPs of random effects }
     \item{BLUP_beta}{ BLUPs of fixed effects \eqn{\beta}{beta}}
     \item{varbeta}{ Variance matrix for \eqn{\beta}{beta} estimates }
     \item{varXbeta}{ Participation of fixed effects to variance of Y }
+  If \code{get.P = TRUE}, there is an additional member:
+    \item{P}{The last matrix \eqn{P} computed in the AIREML step}
 }
 
 \references{Gilmour, A. R., Thompson, R., & Cullis, B. R. (1995), \emph{Average information REML: an efficient algorithm for variance parameter estimation in linear mixed models}, Biometrics, \bold{1440-1450}}

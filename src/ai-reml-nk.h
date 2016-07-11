@@ -14,7 +14,7 @@ template<typename T1, typename T2, typename A, typename T3>
 void AIREMLn_nofix(const Eigen::MatrixBase<T1> & y, const std::vector<T2,A> & K, int EMsteps, int EMsteps_fail, 
                    double EM_alpha, bool constraint, double min_s2, const Eigen::MatrixBase<T3> & min_tau, int max_iter, 
                    double eps, bool verbose, VectorXd & theta, double & logL, double & logL0, int & niter,
-                   double & gr_norm, VectorXd & Py, VectorXd & omega, bool start_theta) {
+                   double & gr_norm, MatrixXd & P, VectorXd & Py, VectorXd & omega, bool start_theta) {
   int n(y.rows());
   int s(K.size());
 
@@ -22,7 +22,6 @@ void AIREMLn_nofix(const Eigen::MatrixBase<T1> & y, const std::vector<T2,A> & K,
 
   // if(verbose) Rcout << "var(Y) = " << var_y << "\n";
   MatrixXd V(n,n);
-  MatrixXd P(n,n);
   VectorXd PPy(n);
 
   std::vector<VectorXd> KPy, PKPy;

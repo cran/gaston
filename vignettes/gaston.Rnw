@@ -761,6 +761,10 @@ fit10$tau/(fit10$tau+fit10$sigma2)
 \vfill\eject
 \section{Association test}
 
+The function described here is rapidly evolving, and this description is incomplete. 
+Stay tuned!
+
+\subsection{Quantitative trait}
   The function \verb!association.test! performs a test of association between SNPs 
   and a quantitative trait $Y$ under the following model
 \begin{equation*}
@@ -772,10 +776,10 @@ fit10$tau/(fit10$tau+fit10$sigma2)
   Matrix (computed on the whole genome). A few PCs can be included in the model
   with fixed effects (using parameter \verb!p! as above for \verb!lmm.diago!).
 
-  Two tests are proposed for $H_0: \beta = 0$: a Wald test on $\widehat\beta$,
+  Three tests are proposed for $H_0: \beta = 0$: a score test, a Wald test on $\widehat\beta$,
   or a Likelihood Ratio Test.
 
-  We illustrate this function on a simple example, build on the AGT data set:
+  We illustrate this function on a simple example, built on the AGT data set:
 <<>>=
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
@@ -794,13 +798,21 @@ y <- 2 + x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) +
      lmm.simu(tau = 0.3, sigma2 = 1, eigenK=R$eigen)$y
 @
 
-  The following code performs the association test and displays the result under the form
-  of a (mini) Manhattan plot:
+  The following code performs the association test with a score test and a wald test,
+  and compares the resulting $p$-values:
+\begin{center}
+<<fig=TRUE>>=
+t_score <- association.test(x, y, K = R$K)
+t_wald <- association.test(x, y, eigenK = R$eigen, test = "wald")
+plot( t_score$p, t_wald$p, log = "xy", xlab = "score", ylab = "wald")
+@
+\end{center}
+
+We can display the results under the form of a (mini) Manhattan plot:
 \begin{center}
 \setkeys{Gin}{width=0.7\textwidth}
 <<fig=TRUE, width=12>>=
-t <- association.test(x, y, eigenK = R$eigen)
-plot(-log10(t$p), xlab="SNP index", ylab = "-log(p)",
+plot(-log10(t_score$p), xlab="SNP index", ylab = "-log(p)",
       col = c(rep(1,350),2,rep(1,ncol(x)-351)))
 @
 \end{center}
@@ -809,11 +821,26 @@ plot(-log10(t$p), xlab="SNP index", ylab = "-log(p)",
   are other SNPs with low association $p$-values: these are the SNPs in LD with
   SNP \#351. We can confirm this by plotting the $p$-values (again on log scale) 
   as a function of the LD (measured by $r^2$):
-
 \begin{center}
 <<fig=TRUE>>=
 lds <- LD(x, 351, c(1,ncol(x)))
-plot(lds, -log10(t$p), xlab="r^2", ylab="-log(p)")
+plot(lds, -log10(t_score$p), xlab="r^2", ylab="-log(p)")
+@
+\end{center}
+
+\subsection{Binary phenotype}
+
+We use the quantitative phenotype previously generated to construct a binary phenotype,
+and we perform the association test with a logistic mixed model (only the score test is 
+available). The baby Manhattan plot is plotted again.
+\begin{center}
+\setkeys{Gin}{width=0.7\textwidth}
+<<fig=TRUE, width=12>>=
+y1 <- as.numeric(y > mean(y))
+t_binary <- association.test(x, y1, K = R$K, response = "binary")
+# (mini) Manhattan plot
+plot(-log10(t_binary$p), xlab="SNP index", ylab = "-log(p)",
+      col = c(rep(1,350),2,rep(1,ncol(x)-351)))
 @
 \end{center}
 

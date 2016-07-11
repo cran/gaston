@@ -11,13 +11,13 @@ template<typename T1, typename T2>
 void AIREML_nofix(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T2> & K, int EMsteps, int EMsteps_fail,
                   double EM_alpha, bool constraint, double min_s2, double min_tau, int max_iter, double eps,
                   bool verbose, Vector2d & theta, double & logL, double & logL0, int & niter, double & gr_norm, 
-                  VectorXd & Py, VectorXd & KPy, bool start_theta) {
+                  MatrixXd & P, VectorXd & Py, VectorXd & KPy, bool start_theta) {
   int n(y.rows());
   double var_y = y.squaredNorm()/n; // eh oui, pas d'effet fixe : Y est supposé centré !!
 
   // if(verbose) Rcout << "var(Y) = " << var_y << "\n";
   MatrixXd V(n,n);
-  MatrixXd P(n,n), Delta(n,n);
+  MatrixXd Delta(n,n);
   VectorXd PPy(n), PKPy(n);
   
   Vector2d theta0, gr, gr_cst;

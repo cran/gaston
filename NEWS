@@ -17,3 +17,11 @@
        better handling of constraints in AIREML methods 
        faster implementation of GRM
        new function of genomic.sex
+1.4.6: Modified Imports/Depends fields to remove a warning about RcppParallel
+       Modified VCF handling functions to follow the new interface of WhopGenome 
+       (patch by Tomas Kalibebera and Ulrich Wittelsbuerger)
+       New functions logistic.mm.aireml, score.variance.linear, score.variance.logistic, score.fixed.linear, score.fixed.logistic
+       New argument get.P in lmm.aireml
+       New features and arguments in association.test
+       Minor modifications of the vignette (illustration of association.test)
+

@@ -37,7 +37,7 @@ setValidity('bed.matrix',
                 errors <- c(errors, "The length of 'mu' must be equal to the number of markers.")
              if ( !is.null(object@sigma) & length(object@sigma) != ncol(object) ) 
                 errors <- c(errors, "The length of 'sigma' must be equal to the number of markers.")
-             if(.Call("isnullptr",  PACKAGE = "gaston", object@bed))
+             if(.Call("isnullptr",  PACKAGE = 'gaston', object@bed))
                 errors <- c(errors, 'The externalptr is broken')
              if ( length(errors)==0 ) return(TRUE) else return(errors)
            } );
@@ -90,7 +90,7 @@ setMethod( 'head', signature(x='bed.matrix'), function(x, nrow=10, ncol=10) prin
 
 setMethod(show, signature("bed.matrix"), 
   function(object) {
-    if(.Call("isnullptr",  PACKAGE = "gaston", object@bed))
+    if(.Call("isnullptr",  PACKAGE = 'gaston', object@bed))
       cat("A bed.matrix with a broken externalptr!\nHint: don't save/load bed.matrices with other functions than write.bed.matrix and read.bed.matrix\n")
     else {
       cat('A bed.matrix with ', nrow(object), ' individuals and ', ncol(object), ' markers.\n', sep='')

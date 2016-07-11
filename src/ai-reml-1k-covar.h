@@ -10,13 +10,13 @@ template<typename T1, typename T2, typename T3>
 void AIREML1(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T3> & x, const Eigen::MatrixBase<T2> & K, 
               int EMsteps, int EMsteps_fail, double EM_alpha, bool constraint, double min_s2, double min_tau, int max_iter, 
               double eps, bool verbose, Vector2d & theta, double & logL, double & logL0, int & niter, 
-              double & gr_norm, VectorXd & Py, VectorXd & KPy, VectorXd & beta, MatrixXd & XViX_i, double & varXbeta, bool start_theta) {
+              double & gr_norm, MatrixXd & P, VectorXd & Py, VectorXd & KPy, VectorXd & beta, MatrixXd & XViX_i, double & varXbeta, bool start_theta) {
 
   Rcout << "aireml1 (fix)\n";
   int n(y.rows()), p(x.cols());
  
   MatrixXd V(n,n);
-  MatrixXd Vi(n,n), P(n,n);
+  MatrixXd Vi(n,n);
   MatrixXd XViX(p,p);
   MatrixXd ViX(n,p);
   VectorXd PPy(n), PKPy(n);

@@ -1,13 +1,12 @@
-import(Rcpp)
-import(RcppParallel)
 import(methods)
-import(WhopGenome)
-import(LDheatmap)
+import(RcppParallel)
+import(LDheatmap) # to change as soon as LDheatmap Imports grid
 
 importFrom("grDevices", "heat.colors")
 importFrom("graphics", "contour", "image", "legend")
-importFrom("stats", "pchisq", "quantile", "rnorm", "kmeans")
+importFrom("stats", "pchisq", "quantile", "rnorm", "kmeans", "glm", "binomial")
 importFrom("utils", "read.table", "write.table")
+importFrom("Rcpp", "evalCpp") # just to avoid << function 'enterRNGScope' not provided by package 'Rcpp' >> error
 
 useDynLib(gaston)
 
@@ -20,6 +19,6 @@ export(set.stats, set.hwe, set.genomic.sex)
 export(bed.loadings, LD, LD.thin)
 export(select.inds, select.snps)
 export(read.bed.matrix, write.bed.matrix, read.vcf)
-export(random.pm, lmm.simu, lmm.aireml, lmm.diago, lmm.diago.likelihood, lik.contour)
+export(random.pm, lmm.simu, lmm.aireml, logistic.mm.aireml, lmm.diago, lmm.diago.likelihood, lik.contour)
 export(association.test)
-
+export(score.variance.linear, score.variance.logistic, score.fixed.linear, score.fixed.logistic)

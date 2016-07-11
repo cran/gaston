@@ -14,13 +14,13 @@ template<typename T1, typename T2, typename A, typename T3, typename T4>
 void AIREMLn(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T4> & x, const std::vector<T2,A> & K, 
                int EMsteps, int EMsteps_fail, double EM_alpha, bool constraint, double min_s2, 
                const Eigen::MatrixBase<T3> & min_tau, int max_iter, double eps, bool verbose, 
-               VectorXd & theta, double & logL, double & logL0, int & niter, double & gr_norm, VectorXd & Py, 
+               VectorXd & theta, double & logL, double & logL0, int & niter, double & gr_norm, MatrixXd & P, VectorXd & Py, 
                VectorXd & omega, VectorXd & beta, MatrixXd & XViX_i, double & varXbeta, bool start_theta) {
   int n(y.rows()), p(x.cols());
   int s(K.size());
 
   MatrixXd V(n,n);
-  MatrixXd Vi(n,n), P(n,n);
+  MatrixXd Vi(n,n);
   MatrixXd XViX(p,p);
   MatrixXd ViX(n,p);
   VectorXd PPy(n);
