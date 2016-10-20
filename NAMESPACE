@@ -1,12 +1,11 @@
 import(methods)
-import(RcppParallel)
-import(LDheatmap) # to change as soon as LDheatmap Imports grid
 
-importFrom("grDevices", "heat.colors")
-importFrom("graphics", "contour", "image", "legend")
+importFrom("grDevices", "heat.colors", "dev.off", "pdf", "rgb")
+importFrom("graphics", "contour", "image", "legend", "par", "plot", "polygon", "rect", "segments", "strheight", "strwidth", "text")
 importFrom("stats", "pchisq", "quantile", "rnorm", "kmeans", "glm", "binomial")
 importFrom("utils", "read.table", "write.table")
 importFrom("Rcpp", "evalCpp") # just to avoid << function 'enterRNGScope' not provided by package 'Rcpp' >> error
+importFrom("RcppParallel", "setThreadOptions", "defaultNumThreads")
 
 useDynLib(gaston)
 
@@ -15,8 +14,8 @@ exportMethods(head,  as.matrix, "[", "%*%", dim, p, 'p<-', mu, 'mu<-', sigma, 's
 
 export(as.bed.matrix)
 export(GRM, reshape.GRM)
-export(set.stats, set.hwe, set.genomic.sex)
-export(bed.loadings, LD, LD.thin)
+export(set.stats, set.stats.ped, set.stats.snps, set.hwe, set.genomic.sex)
+export(bed.loadings, LD, LD.plot, LD.thin)
 export(select.inds, select.snps)
 export(read.bed.matrix, write.bed.matrix, read.vcf)
 export(random.pm, lmm.simu, lmm.aireml, logistic.mm.aireml, lmm.diago, lmm.diago.likelihood, lik.contour)

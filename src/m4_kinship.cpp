@@ -13,23 +13,23 @@ using namespace RcppParallel;
 
 struct paraKin : public Worker {
   // input and others
-  const matrix4 & A;
-  const double * mu;
-  const double * w;
+  uint8_t ** data;
   const size_t ncol;
   const size_t true_ncol;
+  const double * mu;
+  const double * w;
   const size_t sizeK;
 
   // output
   Ktype * K;
   
   // constructeurs
-  paraKin(matrix4 & A, const double * mu, const double * w) : A(A), mu(mu), w(w), 
-        ncol(A.ncol), true_ncol(A.true_ncol), sizeK((4*true_ncol)*(4*true_ncol+1)/2) { 
+  paraKin(uint8_t ** data, const size_t ncol, const size_t true_ncol, const double * mu, const double * w) : 
+        data(data), ncol(ncol), true_ncol(true_ncol), mu(mu), w(w), sizeK((4*true_ncol)*(4*true_ncol+1)/2) { 
           K = new Ktype[sizeK];  // K is padded to a multiple of 4...
           std::fill(K, K+sizeK, 0);
         }
-  paraKin(paraKin & Q, Split) : A(Q.A), mu(Q.mu), w(Q.w), ncol(Q.ncol), true_ncol(Q.true_ncol), sizeK(Q.sizeK) {
+  paraKin(paraKin & Q, Split) : data(Q.data), ncol(Q.ncol), true_ncol(Q.true_ncol), mu(Q.mu), w(Q.w), sizeK(Q.sizeK) {
           K = new Ktype[sizeK];  // K is padded to a multiple of 4...
           std::fill(K, K+sizeK, 0);
         }
@@ -65,7 +65,7 @@ struct paraKin : public Worker {
         }
       }
 
-      uint8_t * dd = A.data[i];
+      const uint8_t * dd = data[i];
       
       k = 0;
       for(size_t j1 = 0; j1 < true_ncol; j1++) {
@@ -100,11 +100,12 @@ struct paraKin : public Worker {
 };
 
 
-
-
-// [[Rcpp::export]]
 NumericMatrix Kinship(XPtr<matrix4> p_A, const std::vector<double> & mu, const std::vector<double> & w, int chunk) {
-  paraKin X(*p_A, &mu[0], &w[0]);
+
+  if(mu.size() != p_A->nrow || w.size() != p_A->nrow) 
+    stop("Dimensions mismatch");
+
+  paraKin X(p_A->data, p_A->ncol, p_A->true_ncol, &mu[0], &w[0]);
   parallelReduce(0, p_A->nrow, X, chunk);
 
   NumericMatrix Y(p_A->ncol,p_A->ncol);
@@ -126,6 +127,42 @@ NumericMatrix Kinship(XPtr<matrix4> p_A, const std::vector<double> & mu, const s
   return Y;
 }
 
+// [[Rcpp::export]]
+NumericMatrix Kinship_w(XPtr<matrix4> p_A, const std::vector<double> & mu, const std::vector<double> & w, LogicalVector snps, int chunk) {
+  int nb_snps = sum(snps);
+
+  if(snps.length() != p_A->nrow || mu.size() != nb_snps || w.size() != nb_snps) 
+    stop("Dimensions mismatch");
+
+  uint8_t ** data = new uint8_t * [nb_snps];
+  size_t k = 0;
+  for(size_t i = 0; i < p_A->nrow; i++) {
+    if(snps[i]) data[k++] = p_A->data[i];
+  }
+
+  paraKin X(data, p_A->ncol, p_A->true_ncol, &mu[0], &w[0]);
+  parallelReduce(0, nb_snps, X, chunk);
+
+  delete [] data;
+
+  NumericMatrix Y(p_A->ncol,p_A->ncol);
+  k = 0;
+  for(size_t i = 0; i < p_A->ncol; i++) {
+    for(size_t j = 0; j <= i; j++) {
+      Y(j,i) = (double) X.K[k++];
+    }
+  }
+
+  // symmetriser
+  k = 0;
+  for(size_t i = 0; i < p_A->ncol; i++) {
+    for(size_t j = 0; j <= i; j++) {
+      Y(i,j) = X.K[k++]; // ou Y(j,i);
+    }
+  }
+  
+  return Y;
+}
 
 RcppExport SEXP gg_Kinship(SEXP p_ASEXP, SEXP muSEXP, SEXP wSEXP, SEXP chunkSEXP) {
 BEGIN_RCPP
@@ -141,6 +178,20 @@ BEGIN_RCPP
     }
     UNPROTECT(1);
     return __sexp_result;
+END_RCPP
+}
+
+RcppExport SEXP gg_Kinship_w(SEXP p_ASEXP, SEXP muSEXP, SEXP wSEXP, SEXP snpsSEXP, SEXP chunkSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< XPtr<matrix4> >::type p_A(p_ASEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type snps(snpsSEXP);
+    Rcpp::traits::input_parameter< int >::type chunk(chunkSEXP);
+    __result = Rcpp::wrap(Kinship_w(p_A, mu, w, snps, chunk));
+    return __result;
 END_RCPP
 }
 

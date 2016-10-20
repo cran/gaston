@@ -7,15 +7,14 @@
   Returns an updated \code{\link{bed.matrix}} with a new variable for the genomic sex
   of each individual.
 }
-\usage{ set.genomic.sex(x, chr.x = 23, chr.y = 24, plot = FALSE, 
-           verbose = getOption("gaston.verbose",TRUE)) }
-
+\usage{ set.genomic.sex(x, plot = FALSE, verbose = getOption("gaston.verbose",TRUE),
+            chr.x = getOption("gaston.chr.x"), chr.y = getOption("gaston.chr.y") ) }
 \arguments{
   \item{x}{ A \code{\link{bed.matrix}} }
-  \item{chr.x}{ Id of the X chromosome (defaut value according to PLINK convention) } 
-  \item{chr.y}{ Id of the Y chromosome (defaut value according to PLINK convention) } 
   \item{plot}{ If \code{TRUE}, plots the variables used for the clustering }
   \item{verbose}{ If \code{TRUE}, displays information on the function actions }
+  \item{chr.x}{ Id of the X chromosome (defaut value according to PLINK convention) } 
+  \item{chr.y}{ Id of the Y chromosome (defaut value according to PLINK convention) } 
 }
 
 \details{

@@ -1,4 +1,4 @@
-LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x), 
+LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x), which.snps = x@snps$chr[beg:end] %in% getOption("gaston.autosomes"),
                     dist.unit = c("bases", "indices"), extract = TRUE, keep = c("left", "right", "random")) {
   if(is.null(x@mu) | is.null(x@sigma))
     stop("LD.thin needs mu and sigma to be set for LD computation (use set.stats)")
@@ -12,13 +12,16 @@ LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x),
   keep <- match.arg(keep)
   if(keep == "left") {
     w <- .Call("gg_ld_thin_left", x@bed, x@mu, x@sigma, threshold, as.integer(x@snps$pos), 
-          as.integer(x@snps$chr), as.integer(max.dist), as.integer(beg)-1L, as.integer(end)-1L)
+          as.integer(x@snps$chr), as.integer(max.dist), as.integer(beg)-1L, as.integer(end)-1L,
+          which.snps)
   } else if (keep == "right"){
     w <- .Call("gg_ld_thin_right", x@bed, x@mu, x@sigma, threshold, as.integer(x@snps$pos), 
-          as.integer(x@snps$chr), as.integer(max.dist), as.integer(beg)-1L, as.integer(end)-1L)
+          as.integer(x@snps$chr), as.integer(max.dist), as.integer(beg)-1L, as.integer(end)-1L,
+          which.snps)
   } else {
     w <- .Call("gg_ld_thin_random", x@bed, x@mu, x@sigma, threshold, as.integer(x@snps$pos), 
-          as.integer(x@snps$chr), as.integer(max.dist), as.integer(beg)-1L, as.integer(end)-1L)
+          as.integer(x@snps$chr), as.integer(max.dist), as.integer(beg)-1L, as.integer(end)-1L,
+          which.snps)
   }
 
   if(!extract) return(w)

@@ -68,8 +68,8 @@ desc <- packageDescription("gaston")
   functions are mainly written in C++. Many are multithreaded.
 
   For better performances, we recommend to build Gaston with \verb!clang++!.
-  To do so, it is sufficient to create a file \verb!~/.R/Makevars! containing
-  \verb!CXX = clang++! 
+  To do so, it is sufficient to create in your home directory
+  a file \verb!~/.R/Makevars! containing \verb!CXX1X = clang++! 
 
   In this vignette, we illustrate Gaston using the included data sets \verb!AGT!, \verb!LCT!,
   and \verb!TTN! (see the corresponding manual pages for a description). 
@@ -80,28 +80,41 @@ desc <- packageDescription("gaston")
   Note that the package name is written \verb!gaston! when dealing with R commands, 
   but Gaston (with a capital) in human language.
 
-\subsection*{Modifying Gaston's behaviour with global options}
+\section{Modifying Gaston's behaviour with global options}
 
-  The number of threads used by multithreaded functions can be set
+\subsection{Number of threads}
+
+  The number of threads used by multithreaded functions can be modified 
   through \verb!RcppParallel!  function \verb!setThreadOptions!.
   It is advised to try several values for the number of threads, as 
   using too many threads might be counterproductive due to an important
-  overhead.
+  overhead. The default value set by \verb!RcppParallel! is generally
+  too high.
 
   Some functions have a \verb!verbose! argument, which controls the
   function verbosity. To mute all functions at once you can use 
   \verb!options(gaston.verbose = FALSE)!.
 
+\subsection{Basic statistics computations}
+
   Since version 1.4, the behaviour of all functions that output a
   matrix of genotypes (a bed.matrix, described in the next section)
-  can be modified deeply by setting \verb!options(gaston.auto.set.stats = FALSE)!.
+  can be modified by setting \verb!options(gaston.auto.set.stats = FALSE)!.
   The effects of this option is described in section \ref{stats}
   below. Note that some examples in the manual pages might not work if
   you use this option.
 
+\subsection{Autosomes, gonosomes, mitochondria}
+
+  Since version 1.4.7, some functions take into account wether a SNP 
+  is autosomal, X or Y linked, or mitochondrial. The ids of the corresponding
+  chromosomes are defined by options \verb!gaston.autosomes!, \verb!gaston.chr.x!,
+  \verb!gaston.chr.y!, \verb!gaston.chr.mt!. Default values are \verb!c(1:22, 25)!,
+  \verb!23!, \verb!24! and \verb!26!, following to Plink convention (in this
+  convention, \verb!25! corresponds to the pseudo-autosomal XY region: we chose
+  to include it in the autosomes).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vfill\eject
 \section{Genotype matrices}
 
   An S4 class for genotype matrices is defined, named \verb!bed.matrix!.
@@ -198,6 +211,7 @@ head(x@ped)
   \verb!options(gaston.auto.set.stats = FALSE)! was set (see below), these
   columns will be absent (see below section \ref{stats}).
 
+\pagebreak
 <<>>=
 dim(x@snps)
 head(x@snps)
@@ -227,14 +241,30 @@ head(x@snps)
 <<>>=
 x <- set.stats(x)
 head(x@ped)
+@
+
+The columns \verb!N0!, \verb!N1!, \verb!N2! and \verb!NAs! give for each individual the number of
+autosomal SNPs with a genotype equal to 0, 1, 2 and missing, respectively. The homologous columns
+with names ending with \verb!.x!, \verb!.y! and \verb!.mt! give the same for SNPs on the X, Y, and mitochondria
+(this is why you get only 0s here).
+
+The columns \verb!callrate!, \verb!callrate.x!, \verb!callrate.y!, \verb!callrate.mt!
+give the individual callrate for autosomal, X, Y, mitochondrial SNPs, and similarly,
+\verb!hz!, \verb!hz.x!, \verb!hz.y!, \verb!hz.mt! give the individual heterozygosity.
+
+<<>>=
 head(x@snps)
 @
 
   The columns \verb!N0!, \verb!N1!, \verb!N2! and \verb!NAs! contain the number
-  of genotypes 0, 1, 2 and \verb!NA!, for each invidual or each SNP according to
-  the data frame in which they appear. The callrate is the proportion of non-missing
+  of genotypes 0, 1, 2 and \verb!NA! for each SNP. For W linked SNPs only, the 
+  homologous columns with names ending with \verb!.f! give the same, taking only 
+  women into account.
+  The callrate is the proportion of non-missing
   genotypes. In the \verb!snps! slot, \verb!maf! is the minor allele frequency, and 
-  \verb!hz! it the heterozygosity rate.
+  \verb!hz! it the heterozygosity rate. Note that the callrate for Y linked SNPs
+  taking only men into account, while the heterozygosity rate for X linked SNPs
+  is computed only on women.
 
   The default is too also also update the slots \verb!x@p!, \verb!x@mu! and \verb!x@sigma!:
 <<>>=
@@ -256,13 +286,17 @@ lines(t, sqrt(2*t*(1-t)), col="red")
 @
 \end{center}
 
+  There are also function \verb!set.stats.snps! and \verb!set.stats.ped! which
+  update only \verb!x@snps! and \verb!x@ped!.
+
   The option \verb!gaston.auto.set.stats! can be useful when extracting 
   individuals from bed.matrices (seen next section): if
   \verb!gaston.auto.set.stats = FALSE!, the slots \verb!@p!, \verb!@mu! and \verb!@sigma!
   are left unaltered; in contrast, the default behavior is to call \verb!set.stats! 
   which recomputes the values of these slots. 
   Note that when using \verb!set.stats! ``manually'', one can use options to alter its behavior, 
-  allowing to update only some slots. The following code illustrates this:
+  allowing to update only some slots. The following code illustrates this (remember that here 
+  \verb!gaston.auto.set.stats = FALSE!) :
 
 <<>>=
 head(x@p)
@@ -289,9 +323,10 @@ head(y@p)
 options(gaston.auto.set.stats = TRUE)
 @
 
+\pagebreak
 \subsection{Subsetting bed.matrices}
 
-  It is possible to subset bed.matrices just as base matrices, writing e.g.
+  It is possible to subset bed.matrices just as normal matrices, writing e.g.
   \verb!x[1:100,]! to extract the first 100 individuals, or \verb!x[1:100,10:19]!
   to extract the SNPs 10 to 19 for these 100 individuals:
 
@@ -323,11 +358,50 @@ select.snps(x, maf > 0.1 & hwe > 1e-3)
   One can for example 
   select individuals with callrate greater than 95\% with \verb!select.inds(x, callrate > 0.5)!.
 
-  These functions should make basic Quality Control easy.
+  These functions should make basic Quality Control easy. 
 
   \noindent{\bfseries Note:}\ \ If \verb!options(gaston.auto.set.stats = FALSE)!
   was set, subsetting will erase some or all statistics added by \verb!set.stats!,
   except the \verb!p!, \verb!mu! and \verb!sigma! slots. 
+
+\subsection{Genomic sex}
+  When dealing with genome wide data,
+  the function \verb!set.genomic.sex! can be use to add a \verb!x@ped$genomic.sex! column,
+  determined by clustering on individuals X heterozygosity rate and Y callrate.
+ 
+  \verb!x <- select.inds(x, sex == genomic.sex)! will then allow to keep only individuals 
+  whose sex and genomic sex are concordant.
+
+  An other possibility is to use \verb!x@ped$sex <- x@ped$genomic.sex; x <- set.stats(x)! 
+  to erase the original sex indication and use genomic sex in subsequent analyses.
+
+\subsection{Merging bed.matrices}
+
+  Gaston defines methods \verb!rbind! and \verb!cbind! which can be used to merge several
+  bed.matrices. \verb!cbind! checks that individuals famids and ids are identical ; all remaining
+  columns are taken from the first argument, without further control.
+
+<<>>=
+data(AGT)
+x1 <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
+x1
+data(LCT)
+x2 <- as.bed.matrix(LCT.gen, LCT.fam, LCT.bim)
+x2
+x <- cbind(x1,x2)
+x
+@
+
+  \verb!rbind! similarly checks whether the SNP ids are identical, and also if the reference
+  alleles are identical. If needed, it will perform reference allele inversions (changing a SNP
+  A/G to G/A) or allele strand flips (changing A/G to T/C) or both.
+
+<<>>=
+x3 <- x[1:10, ]
+x4 <- x[-(1:10), ]
+rbind(x3,x4)
+@
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Standardized matrices}
@@ -383,6 +457,7 @@ scale(X, scale = sqrt(2*x@p*(1-x@p)))[1:5,1:4]
 y <- x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) + rnorm(nrow(x), sd = 1)
 @
 
+\pagebreak
 \subsection{Genetic Relationship Matrix and Principal Component Analysis}
 
   If $X_s$ is a standardized $n\times q$ genotype matrix, a Genetic Relationship Matrix 
@@ -392,9 +467,10 @@ y <- x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) + rnorm(nrow(x), sd = 1)
   \end{equation*}
   where $q$ is the number of SNPs.  This computation is done by the function \verb!GRM!.  
 
-  \textbf{NOTE:} In the current version (1.4.5) of Gaston, \verb!GRM! uses all SNPs in the computation.
-  The user should extract a bed.matrix with only autosomal SNPs befaore calling GRM. This will
-  change in a future version.
+  \textbf{NOTE:} Since version 1.4.7, \verb!GRM! has an argument \verb!which.snps! which allows 
+  to give a logical vector specifying which SNPs to use in the computation. The default is to 
+  use only autosomal SNPs (the above formula makes little to no sense for X linked SNPs, unless there 
+  are only women in the sample).
 
   The Principal Component Analysis (PCA) of large genomic data sets is used to retrieve population
   stratification. It can be obtained from the eigen decomposition of the GRM. To illustrate this,
@@ -413,9 +489,10 @@ table(x@ped$population)
 @
 
 
-  We compute the Genetic Relationship Matrix, and its eigen decomposition :
+We compute the Genetic Relationship Matrix, and its eigen decomposition (we don't
+need to standardize \verb!x! explicitely: is \verb!x! isn't standardized, 
+\verb!GRM! will use \verb!standardize(x) = "p"!):
 <<>>=
-standardize(x) <- 'p'
 K <- GRM(x)
 
 eiK <- eigen(K)
@@ -458,13 +535,16 @@ We verify that the loadings have unit norm:
 colSums(L**2)
 @
 
-And that the PCs are retrieved by right multiplying $X_s$ by the loadings:
+And that the PCs are retrieved by right multiplying $X_s$ by the loadings (here we need 
+to explicitely standardize \verb!x!):
 <<>>=
+standardize(x) <- 'p'
 head( (x %*% L) / sqrt(ncol(x)-1) )
 head( PC[,1:2] )
 @
 
 
+\vfill\eject
 \subsection{Linkage Disequilibrium}
 
   Doing the crossproduct in the reverse order produces a moment estimate of the 
@@ -478,19 +558,19 @@ head( PC[,1:2] )
   region, measured by $r^2$ (the default), $r$ or $D$. It can also compute the LD  between
   two different regions.
 
-  We suggest to use \verb!LDheatmap! (from the package of the same name) to plot 
-  square symmetric matrices of LD. Gaston may offer alternatives in future releases.
-
 \begin{center}
-<<fig=TRUE>>=
+\setkeys{Gin}{width=\textwidth}
+<<>>=
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 
 ld.x <- LD(x, c(1,ncol(x)))
 
-colormap <- grey.colors(20,0,1,1)
-LDheatmap(ld.x, genetic.distances=x@snps$pos, color = colormap)
+LD.plot(ld.x, snp.positions = x@snps$pos, write.ld = NULL, 
+        max.dist = 20e3, write.snp.id = FALSE, draw.chr = FALSE, 
+        pdf = "LD_AGT.pdf")
 @
+\includegraphics[width=\textwidth]{LD_AGT.pdf}
 \end{center}
 
   This method is 
@@ -761,6 +841,10 @@ fit10$tau/(fit10$tau+fit10$sigma2)
 \vfill\eject
 \section{Association test}
 
+The function described here is rapidly evolving, and this description is incomplete. 
+Stay tuned!
+
+\subsection{Quantitative trait}
   The function \verb!association.test! performs a test of association between SNPs 
   and a quantitative trait $Y$ under the following model
 \begin{equation*}
@@ -772,10 +856,10 @@ fit10$tau/(fit10$tau+fit10$sigma2)
   Matrix (computed on the whole genome). A few PCs can be included in the model
   with fixed effects (using parameter \verb!p! as above for \verb!lmm.diago!).
 
-  Two tests are proposed for $H_0: \beta = 0$: a Wald test on $\widehat\beta$,
+  Three tests are proposed for $H_0: \beta = 0$: a score test, a Wald test on $\widehat\beta$,
   or a Likelihood Ratio Test.
 
-  We illustrate this function on a simple example, build on the AGT data set:
+  We illustrate this function on a simple example, built on the AGT data set:
 <<>>=
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
@@ -794,13 +878,21 @@ y <- 2 + x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) +
      lmm.simu(tau = 0.3, sigma2 = 1, eigenK=R$eigen)$y
 @
 
-  The following code performs the association test and displays the result under the form
-  of a (mini) Manhattan plot:
+  The following code performs the association test with a score test and a wald test,
+  and compares the resulting $p$-values:
+\begin{center}
+<<fig=TRUE>>=
+t_score <- association.test(x, y, K = R$K)
+t_wald <- association.test(x, y, eigenK = R$eigen, test = "wald")
+plot( t_score$p, t_wald$p, log = "xy", xlab = "score", ylab = "wald")
+@
+\end{center}
+
+We can display the results under the form of a (mini) Manhattan plot:
 \begin{center}
 \setkeys{Gin}{width=0.7\textwidth}
 <<fig=TRUE, width=12>>=
-t <- association.test(x, y, eigenK = R$eigen)
-plot(-log10(t$p), xlab="SNP index", ylab = "-log(p)",
+plot(-log10(t_score$p), xlab="SNP index", ylab = "-log(p)",
       col = c(rep(1,350),2,rep(1,ncol(x)-351)))
 @
 \end{center}
@@ -809,11 +901,26 @@ plot(-log10(t$p), xlab="SNP index", ylab = "-log(p)",
   are other SNPs with low association $p$-values: these are the SNPs in LD with
   SNP \#351. We can confirm this by plotting the $p$-values (again on log scale) 
   as a function of the LD (measured by $r^2$):
-
 \begin{center}
 <<fig=TRUE>>=
 lds <- LD(x, 351, c(1,ncol(x)))
-plot(lds, -log10(t$p), xlab="r^2", ylab="-log(p)")
+plot(lds, -log10(t_score$p), xlab="r^2", ylab="-log(p)")
+@
+\end{center}
+
+\subsection{Binary phenotype}
+
+We use the quantitative phenotype previously generated to construct a binary phenotype,
+and we perform the association test with a logistic mixed model (only the score test is 
+available). The baby Manhattan plot is plotted again.
+\begin{center}
+\setkeys{Gin}{width=0.7\textwidth}
+<<fig=TRUE, width=12>>=
+y1 <- as.numeric(y > mean(y))
+t_binary <- association.test(x, y1, K = R$K, response = "binary")
+# (mini) Manhattan plot
+plot(-log10(t_binary$p), xlab="SNP index", ylab = "-log(p)",
+      col = c(rep(1,350),2,rep(1,ncol(x)-351)))
 @
 \end{center}
 

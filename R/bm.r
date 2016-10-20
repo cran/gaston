@@ -5,9 +5,11 @@ setClassUnion("numericOrNULL",members=c("numeric", "NULL"))
 pednames <- c("famid", "id", "father", "mother", "sex", "pheno")
 snpnames <- c("chr", "id", "dist", "pos", "A1", "A2")
 
-snpstatnames0 <- c("N0", "N1", "N2", "NAs", "callrate", "maf", "hz")
-snpstatnames <- c("N0", "N1", "N2", "NAs", "callrate", "maf", "hz", "hwe")
-pedstatnames <- c("N0", "N1", "N2", "NAs", "callrate", "hz")
+snpstatnames0 <- c("N0", "N1", "N2", "NAs", "callrate", "maf", "hz", "N0.f", "N1.f", "N2.f", "NAs.f" )
+snpstatnames <- c(snpstatnames0, "hwe")
+pedstatnames <- c("N0", "N1", "N2", "NAs", "N0.x", "N1.x", "N2.x", "NAs.x", 
+                  "N0.y", "N1.y", "N2.y", "NAs.y", "N0.mt", "N1.mt", "N2.mt", "NAs.mt", 
+                  "callrate", "hz", "callrate.x", "hz.x", "callrate.y", "hz.y", "callrate.mt", "hz.mt")
 
 is.null.df <- function(x) is.data.frame(x) & nrow(x) == 0 & ncol(x) == 0
 

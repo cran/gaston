@@ -18,8 +18,10 @@ in the data frame \code{x@ped}, that is
 \itemize{
   \item \code{famid}, \code{id}, \code{father}, \code{mother}, \code{sex}, \code{pheno}
   \item If basic stats have been computed (see \code{\link{set.stats}}), 
-        \code{N0}, \code{N1}, \code{N2}, \code{NAs}, \code{callrate}.
+        \code{N0}, \code{N1}, \code{N2}, \code{NAs}, \code{callrate}, etc.
   }
+If some condition evaluate to \code{NA} (e.g. \code{sex == 1} when \code{sex} is undefined for some individuals), 
+a warning is issued and the corresponding individuals are removed.
 }
 
 \value{ A \code{\link{bed.matrix}} similar to \code{x}, containing the selected individuals only }

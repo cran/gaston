@@ -16,12 +16,21 @@
 1.4.5: corrected a bug in method 'show'
        better handling of constraints in AIREML methods 
        faster implementation of GRM
-       new function of genomic.sex
+       new function genomic.sex
 1.4.6: Modified Imports/Depends fields to remove a warning about RcppParallel
        Modified VCF handling functions to follow the new interface of WhopGenome 
-       (patch by Tomas Kalibebera and Ulrich Wittelsbuerger)
+          (patch by Tomas Kalibera and Ulrich Wittelsbuerger)
        New functions logistic.mm.aireml, score.variance.linear, score.variance.logistic, score.fixed.linear, score.fixed.logistic
        New argument get.P in lmm.aireml
        New features and arguments in association.test
        Minor modifications of the vignette (illustration of association.test)
-
+1.4.7: Corrected (minor) bug in association.test (handling of monomorphic SNPs in some tests)
+       New function LD.plot / LDheatmap dependence removed
+       Handling NAs in select.snp select.inds
+       Added chr X, Y, MT support / modified set.stats, set.genomic.sex accordingly
+       Added which.snps argument in LD.thin and GRM
+       rbind and cbind now check individuals ids / snp ids ; rbind check reference alleles
+          and perform reference inversions / strand flips if needed.
+       Integrated code from CompQuadForm / removed dependence 
+          (CompQuadForm does not compile with R < 3.3 which bothers us)
+       Minor modifications of the vignette (update description of modified functions)

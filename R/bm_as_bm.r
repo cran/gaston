@@ -33,4 +33,3 @@ as.bed.matrix <- function(x, fam, bim) {
   if(getOption("gaston.auto.set.stats", TRUE)) x <- set.stats(x, verbose = FALSE)
   x
 }
-

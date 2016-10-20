@@ -31,7 +31,7 @@
 
 \author{ Hervé Perdry and Claire Dandine-Roulland }
 
-\seealso{ \code{\link{LD.thin}},  \code{\link[LDheatmap:LDheatmap]{LDheatmap}}  }
+\seealso{ \code{\link{LD.thin}},  \code{\link{LD.plot}}  }
 
 \examples{
 # Load data
@@ -41,9 +41,8 @@ x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 # Compute LD
 ld.x <- LD(x, c(1,ncol(x)))
 
-# Plot with LDheatmap from the package LDheatmap
-LDheatmap::LDheatmap(ld.x, genetic.distances=x@snps$pos)
-
+# Plot a tiny part of the LD matrix
+LD.plot( ld.x[1:20,1:20], snp.positions = x@snps$pos[1:20] )
 }
 
 \keyword{ Linkage Disequilibrium }

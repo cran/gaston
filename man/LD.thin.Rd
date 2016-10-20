@@ -6,6 +6,7 @@
 \description{ Select SNPs in LD below a given threshold. }
 \usage{
 LD.thin(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x),
+        which.snps = x@snps$chr[beg:end] \%in\% getOption("gaston.autosomes"),
         dist.unit = c("bases", "indices"), extract = TRUE,
         keep = c("left", "right", "random"))
 }
@@ -16,6 +17,7 @@ LD.thin(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x),
   \item{max.dist}{ The maximum distance for which the LD is computed }
   \item{beg}{ The index of the first SNP to consider }
   \item{end}{ The index of the last SNP to consider }
+  \item{which.snps}{ Logical vector, giving which SNPs are considerd. The default is to use only autosomal SNPs}
   \item{dist.unit}{ Distance unit in \code{max.dist} }
   \item{extract}{ A \code{logical} indicating whether the function return a \code{bed.matrix} (\code{TRUE}) 
                   or a logical vector indicating which SNPs are selected (\code{FALSE}) }

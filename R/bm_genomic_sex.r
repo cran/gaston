@@ -1,28 +1,40 @@
 
-set.genomic.sex <- function(x, chr.x = 23, chr.y = 24, plot = FALSE, verbose = getOption("gaston.verbose",TRUE)) {
-  if( !all(c("hz", "maf", "callrate") %in% names(x@snps) )) {
-    if(verbose) cat("Computing basic stats\n", set.ped_stats = FALSE, set.p = FALSE, set.mu_sigma = FALSE)
-    x <- set.stats(x)
+set.genomic.sex <- function(x, plot = FALSE, verbose = getOption("gaston.verbose",TRUE), 
+                            chr.x = getOption("gaston.chr.x"), chr.y = getOption("gaston.chr.y") ) {
+  if( !all(c("hz.x", "callrate.y") %in% names(x@ped) )) {
+    if(verbose) cat("Computing individual X heterozygosity and Y callrate stats\n")
+    x <- set.stats.ped(x)
   }
-  if(verbose) cat("Extracting SNPs from chr X and chr Y SNPs\n")
-  X <- x[, x@snps$chr == chr.x & !is.na(x@snps$maf) & x@snps$maf > 0]
-  Y <- x[, x@snps$chr == chr.y & !is.na(x@snps$maf) & x@snps$maf > 0]
-  if(!("callrate" %in% names(X@ped)))
-    X <- set.stats(X, verbose = FALSE, set.snps_stats = FALSE, set.p = FALSE, set.mu_sigma = FALSE)
-  if(!("hz" %in% names(Y@ped)))
-    Y <- set.stats(Y, verbose = FALSE, set.snps_stats = FALSE, set.p = FALSE, set.mu_sigma = FALSE)
 
-  y.callrate <- Y@ped$callrate
-  x.hz <- X@ped$hz
-  x@ped$genomic.sex <- kmeans( x = cbind(y.callrate, x.hz), centers = matrix( c(max(y.callrate), min(x.hz), min(y.callrate), max(x.hz)), ncol = 2 ) )$cluster
+  y.callrate <- x@ped$callrate.y
+  x.hz       <- x@ped$hz.x
+
+  # centres naturels des clusters
+  # H : x.hz = 0 y.callrate = 1
+  # F : x.hz = ? y.callrate = 0 
+  max.x.hz <- max(x.hz)
+
+  cluster <- kmeans( x = cbind( c(y.callrate,1,0) , c(x.hz,0,max.x.hz) ), 
+                     centers = matrix(c(1, 0, 0, max.x.hz), ncol = 2) )$cluster
+  x@ped$genomic.sex <- cluster[ 1:nrow(x) ]
   if(plot) {
-    plot( x.hz, y.callrate, xlab = "X heterozygosity", ylab = "Y callrate", col = x@ped$genomic.sex, main = "Determination of Genomic Sex" )
+    plot( x.hz, y.callrate, xlab = "X heterozygosity", ylab = "Y callrate", 
+          col = x@ped$genomic.sex, main = "Determination of Genomic Sex", xlim=c(0,1), ylim=c(0,1), asp=1 )
     legend("bottomleft", pch = 1, col = 1:2, c("M","F"))
   }
   if(verbose) {
     cat("Slot @ped$genomic.sex has been set\n")
-    cat("There are", sum(!is.na(x@ped$sex) & x@ped$sex == 1 & x@ped$genomic.sex == 2), "individuals with sex = M and genomic sex = F\n")
-    cat("There are", sum(!is.na(x@ped$sex) & x@ped$sex == 2 & x@ped$genomic.sex == 1), "individuals with sex = F and genomic sex = M\n")
+    diff.mf <- sum(x@ped$sex == 1 & x@ped$genomic.sex == 2)
+    diff.fm <- sum(x@ped$sex == 2 & x@ped$genomic.sex == 1)
+    sex.undef <- sum(x@ped$sex != 1 & x@ped$sex != 2)
+    if(diff.mf > 0)
+      cat("Found", diff.mf, "individuals with sex = M and genomic sex = F\n")
+    if(diff.fm > 0)
+      cat("Found", diff.fm, "individuals with sex = F and genomic sex = M\n")
+    if(sex.undef > 0)
+      cat("Found", sex.undef, "individuals");
   }
   x
 }
+
+

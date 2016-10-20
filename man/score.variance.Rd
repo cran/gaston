@@ -6,15 +6,16 @@
 
 \description{ Test if a variance component is significaly different from 0 using score test in a Linear or Logistic Mixed Model. }
 \usage{ 
-score.variance.linear(k, Y, X = matrix(1, length(Y)), K, ...)
-score.variance.logistic(k, Y, X = matrix(1, length(Y)), K, ...)
+score.variance.linear(K0, Y, X = matrix(1, length(Y)), K, acc_davies=1e-10, ...)
+score.variance.logistic(K0, Y, X = matrix(1, length(Y)), K, acc_davies=1e-10, ...)
 }
 
 \arguments{
-  \item{k}{ A positive definite matrix }
+  \item{K0}{ A positive definite matrix }
   \item{Y}{ The phenotype vector }
   \item{X}{ A covariate matrix. The default is a column vector of ones, to include an intercept in the model }
   \item{K}{ A positive definite matrix or a \code{list} of such matrices }
+  \item{acc_davies}{ Accuracy in Davies method used to compute p-value }
   \item{...}{ Optional arguments used to fit null model with \code{lmm.aireml} of \code{logistic.mm.aireml} function. }
 }
 
@@ -23,12 +24,20 @@ score.variance.logistic(k, Y, X = matrix(1, length(Y)), K, ...)
   \deqn{ Y = X\alpha + \gamma + \omega_1 + \ldots + \omega_k + \varepsilon }{ Y = X alpha + gamma + omega_1 + ... + omega_k + varepsilon }
   or, in \code{score.variance.logistic}, we consider the following logistic model
   \deqn{ \mbox{logit}(P[Y=1|X,x,\omega_1,\ldots,\omega_k]) = X\alpha + \gamma + \omega_1 + \ldots + \omega_k}{logit(P[Y=1|X,x,omega_1,...,omega_k]) = X alpha + gamma + omega_1 + ... + omega_k }
-  with \eqn{ \gamma\sim N(0,\kappa k)\gamma}{gamma~N(0, kappa k)}, \eqn{ \omega_j \sim N(0,\tau_j K_j) }{omega_j ~ N(0, tau_j K_j)},
+  with \eqn{ \gamma\sim N(0,\kappa K_0)\gamma}{gamma~N(0, kappa K_0)}, \eqn{ \omega_j \sim N(0,\tau_j K_j) }{omega_j ~ N(0, tau_j K_j)},
   \eqn{ \varepsilon \sim N(0,\sigma^2 I_n) }{epsilon ~ N(0, sigma^2 I_n)}.
-  k and \eqn{K_j} are Genetic Relationship Matrix (GRM).  
+  \eqn{K_0} and \eqn{K_j} are Genetic Relationship Matrix (GRM).  
   
   \code{score.variance.linear } and \code{score.variance.logistic} functions permit to test
-  \eqn{H_0}{H0} : \eqn{\kappa=0}{kappa=0} vs \eqn{H_1}{H1} : \eqn{\kappa>0}{kappa>0}.
+  \deqn{H_0 : \kappa=0 \mbox{ vs } H_1 : \kappa>0}{H_0 : kappa=0 vs H_1 : kappa>0}
+  with, for linear mixed model, the score
+  \deqn{ Q = Y'P_OK_0P_0Y/2 }{ Q = Y'P_OK_0P_0Y/2 }
+  or, for logistic mixed model, the score
+  \deqn{ Q = (Y-\pi_0)'K_0(Y-\pi_0)/2 }{ Q = (Y-pi_0)'K_0(Y-pi_0)/2 }
+  where \eqn{P_0} is the last matrix \eqn{P} computed in the optimization process for null model and \eqn{\pi_0}{pi_0} the vector of fitted values under null logistic model.
+  
+  The associated p-value is computed with Davies method.
+  
   
   In this aim, all parameters under null model are estimated with \code{lmm.aireml} or \code{logistic.mm.aireml}.
   The p-value corresponding to the estimated score is computed using Davies method implemented in 'CompQuadForm' R package.
@@ -54,8 +63,8 @@ x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 standardize(x) <- "p"
 
 # Calculate GRM et its eigen decomposition
-k <- GRM(x)
-eig <- eigen(k)
+K0 <- GRM(x)
+eig <- eigen(K0)
 eig$values <- round(eig$values, 5)
 
 # generate an other positive matrix (to play the role of the second GRM)
@@ -66,7 +75,7 @@ R <- random.pm(nrow(x))
 # simulate quantitative phenotype with two polygenic components
 y <- lmm.simu(0.1,1,eigenK=eig)$y + lmm.simu(0.2,0,eigenK=R$eigen)$y
 
-t <- score.variance.linear(k, y, K=R$K, verbose=FALSE)
+t <- score.variance.linear(K0, y, K=R$K, verbose=FALSE)
 str(t)
 
 
@@ -75,7 +84,7 @@ mu <- lmm.simu(0.1,0.5,eigenK=eig)$y + lmm.simu(0.2,0,eigenK=R$eigen)$y
 pi <- 1/(1+exp(-mu))
 y <- 1*(runif(length(pi))<pi)
 
-tt <- score.variance.logistic(k, y, K=R$K, verbose=FALSE)
+tt <- score.variance.logistic(K0, y, K=R$K, verbose=FALSE)
 str(tt)
 }
 

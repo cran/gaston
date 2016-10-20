@@ -19,9 +19,12 @@ The conditions can involve global variables, and all variables defined
 in the data frame \code{x@snps}, that is
 \itemize{
   \item \code{chr}, \code{id}, \code{dist}, \code{pos}, \code{A1}, \code{A2}
-  \item If basic stats have been computed (see \code{\link{set.stats}}), \code{N0}, \code{N1}, \code{N2}, \code{NAs}, \code{callrate}, \code{maf}, \code{hz}.
+  \item If basic stats have been computed (see \code{\link{set.stats}}), \code{N0}, \code{N1}, \code{N2}, \code{NAs}, \code{callrate}, \code{maf}, \code{hz}, etc.
   \item If Hardy-Weinberg Equilibrium test has been performed (see \code{\link{set.hwe}}), \code{hwe}.
   }
+
+If some condition evaluate to \code{NA} (e.g. \code{maf > 0} when \code{maf} is undefined for some SNPs), 
+a warning is issued and the corresponding SNPs are removed.
 }
 
 \value{ A \code{\link{bed.matrix}} similar to \code{x}, containing the selected SNPs only }

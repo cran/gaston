@@ -4,6 +4,7 @@
 #include "diago_wrapers.h"
 #include "matrix4.h"
 #include <ctime>
+#include <cmath>
 #define BLOCK 20 
 
 //[[Rcpp::export]]
@@ -49,19 +50,10 @@ List GWAS_lmm_wald(XPtr<matrix4> pA, NumericVector mu, NumericVector Y, NumericM
   A.XViXi = &XViXi;
 
   clock_t chaviro(0);
-
-  // on commence sur un vecteur aléatoire, pour avoir une idée de h2
-  for(int i = 0; i < n; i++) {
-    double a = Rf_runif(0,1);
-    if(a < 0.25) x(i,r-1) = 0; else if(a < 0.75) x(i,r-1) = 1; else x(i,r-1) = 2;
-  }
-  // likelihood max
   clock_t begin_t = clock();
-  double h2 = Brent_fmin(0., 1., wrap_li, (void *) &A, tol);
-  chaviro += clock() - begin_t;
 
-  double min_h2 = (h2 < 0.1)?0.:(h2-0.1);
-  double max_h2 = (h2 > 0.9)?1.:(h2+0.1);
+  double h2, min_h2 = 0., max_h2 = 1.;
+
   // Rcout << min_h2 << " < h2 < " << max_h2 << "\n";
   for(int i = beg; i <= end; i++) {
     // remplir dernière colonne de x : récupérer SNP, multiplier par u'...
@@ -99,28 +91,33 @@ List GWAS_lmm_wald(XPtr<matrix4> pA, NumericVector mu, NumericVector Y, NumericM
       chaviro += clock() - begin_t;
       max_h2 = h2;
     }
+    // les SNPs monomorphes entrainent des vraisemblances mal définies
+    if(std::isfinite(A.likelihood)) {
+      // *********** CALCUL DES BLUPS ************************
+      // Attention P0y n'est que (P0y)b, les n-p dernières composantes ! (les p premières sont nulles)
+      sigmab = sigma.bottomRows(n-p);
+      omega = h2 * sigmab.asDiagonal() * P0y;
 
-    // *********** CALCUL DES BLUPS ************************
-    // Attention P0y n'est que (P0y)b, les n-p dernières composantes ! (les p premières sont nulles)
-    sigmab = sigma.bottomRows(n-p);
-    omega = h2 * sigmab.asDiagonal() * P0y;
+      // Xb' Xb
+      MatrixXd xtx( MatrixXd(r,r).setZero().selfadjointView<Lower>().rankUpdate( x.bottomRows(n-p).transpose() ));
+      MatrixXd xtx0( xtx );
+      MatrixXd xtxi(r,r); // et son inverse
+      double d, ld;
+      sym_inverse(xtx0, xtxi, d, ld, 1e-5); // détruit xtx0
 
-    // Xb' Xb
-    MatrixXd xtx( MatrixXd(r,r).setZero().selfadjointView<Lower>().rankUpdate( x.bottomRows(n-p).transpose() ));
-    MatrixXd xtx0( xtx );
-    MatrixXd xtxi(r,r); // et son inverse
-    double d, ld;
-    sym_inverse(xtx0, xtxi, d, ld, 1e-5); // détruit xtx0
+      z = y;
+      z.tail(n-p) -= omega + (1-h2)*P0y;
+      beta = xtxi * x.bottomRows(n-p).transpose() * z.bottomRows(n-p);
+      // ************ FIN DU CALCUL DES BLUPS ******************
 
-    z = y;
-    z.tail(n-p) -= omega + (1-h2)*P0y;
-    beta = xtxi * x.bottomRows(n-p).transpose() * z.bottomRows(n-p);
-    // ************ FIN DU CALCUL DES BLUPS ******************
-
-    H2(i-beg) = h2;
-    BETA(i-beg) = beta(r-1);
-    SDBETA(i-beg) = sqrt(v*XViXi(r-1,r-1));
-
+      H2(i-beg) = h2;
+      BETA(i-beg) = beta(r-1);
+      SDBETA(i-beg) = sqrt(v*XViXi(r-1,r-1));
+    } else {
+      H2(i-beg) = h2;
+      BETA(i-beg) = 0;
+      SDBETA(i-beg) = 0;
+    }
     // remettre à jour min_h2 et max_h2
     if((i - beg + 1)%BLOCK == 0) {
       min_h2 = H2.segment(i-beg-BLOCK+1,BLOCK).minCoeff();

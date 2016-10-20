@@ -12,7 +12,6 @@ void AIREML1_logit(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T3> 
               bool constraint, double min_tau, int max_iter, double eps, bool verbose, double & tau, int & niter, MatrixXd & P,
 			  VectorXd & omega, VectorXd & beta, MatrixXd & XViX_i, bool start_tau, bool start_beta) {
 
-  Rcout << "aireml1 (fix)\n";
   int n(y.rows()), p(x.cols()), i(0);
   MatrixXd V(n,n), Vi(n,n), W(n,n);
   MatrixXd XViX(p,p), ViX(n,p);

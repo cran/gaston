@@ -12,7 +12,6 @@ void AIREML1(const Eigen::MatrixBase<T1> & y, const Eigen::MatrixBase<T3> & x, c
               double eps, bool verbose, Vector2d & theta, double & logL, double & logL0, int & niter, 
               double & gr_norm, MatrixXd & P, VectorXd & Py, VectorXd & KPy, VectorXd & beta, MatrixXd & XViX_i, double & varXbeta, bool start_theta) {
 
-  Rcout << "aireml1 (fix)\n";
   int n(y.rows()), p(x.cols());
  
   MatrixXd V(n,n);
