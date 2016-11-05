@@ -6,8 +6,7 @@
 \description{
   Compute the Genetic Relationship Matrix}
 
-\usage{ GRM(x, which.snps = x@snps$chr \%in\% getOption("gaston.autosomes"),
-            chunk = 1L) }
+\usage{ GRM(x, which.snps = is.autosome(x@snps$chr), chunk = 1L) }
 
 \arguments{
   \item{x}{ A \code{\link{bed.matrix}} }

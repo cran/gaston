@@ -19,3 +19,8 @@ select.inds <- function(x, condition) {
   }
   x[w,]
 }
+
+is.autosome <- function(chr) chr %in% getOption("gaston.autosomes")
+is.chr.x    <- function(chr) chr %in% getOption("gaston.chr.x")
+is.chr.y    <- function(chr) chr %in% getOption("gaston.chr.y")
+is.chr.mt   <- function(chr) chr %in% getOption("gaston.chr.mt")

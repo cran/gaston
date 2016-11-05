@@ -1,6 +1,5 @@
 
-set.genomic.sex <- function(x, plot = FALSE, verbose = getOption("gaston.verbose",TRUE), 
-                            chr.x = getOption("gaston.chr.x"), chr.y = getOption("gaston.chr.y") ) {
+set.genomic.sex <- function(x, plot = FALSE, verbose = getOption("gaston.verbose",TRUE)) { 
   if( !all(c("hz.x", "callrate.y") %in% names(x@ped) )) {
     if(verbose) cat("Computing individual X heterozygosity and Y callrate stats\n")
     x <- set.stats.ped(x)
@@ -32,7 +31,7 @@ set.genomic.sex <- function(x, plot = FALSE, verbose = getOption("gaston.verbose
     if(diff.fm > 0)
       cat("Found", diff.fm, "individuals with sex = F and genomic sex = M\n")
     if(sex.undef > 0)
-      cat("Found", sex.undef, "individuals");
+      cat("Found", sex.undef, "individuals with undefined sex\n");
   }
   x
 }

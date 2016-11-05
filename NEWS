@@ -34,3 +34,9 @@
        Integrated code from CompQuadForm / removed dependence 
           (CompQuadForm does not compile with R < 3.3 which bothers us)
        Minor modifications of the vignette (update description of modified functions)
+1.4.8: Corrected bug in set.stats (stats for chr Y)
+       Finally removed CompQuadForm from dependence list !
+       Minor modifs in read vcf, rbind, set.genomic.sex
+       New function merge.inds
+       New functions (short cuts) is.autosome, is.chr.x, is.chr.y, is.chr.mt
+

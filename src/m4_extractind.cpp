@@ -28,10 +28,13 @@ XPtr<matrix4> extract_inds_bool(XPtr<matrix4> pA, LogicalVector w) {
 XPtr<matrix4> extract_inds_indices(XPtr<matrix4> pA, IntegerVector w) {
   size_t ncol = w.length();
   XPtr<matrix4> pB(new matrix4(pA->nrow, ncol));
+  if(is_true(any(w > pA-> ncol)))
+     stop("Index out of range"); 
   for(size_t i =0; i < pA->nrow; i++){
     for(size_t j = 0; j < ncol; j++) {
-      if(w(j) < 1 || w(j) > pA->ncol)
-        Rf_error("Index out of range");
+      if(w(j) < 1) 
+        (*pB)(i, j) = 3;
+      else
         (*pB)(i, j) = (*pA)(i,w(j)-1);
     }
   }

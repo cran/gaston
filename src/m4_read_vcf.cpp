@@ -70,8 +70,10 @@ List read_vcf(Function f, int nsamples, int nsnps) {
 
     for(int j = 0; j < nsamples; j++) {
       int le = onetab_str_token(a,t); 
-      if(le != 3 && le != 1) Rf_error("VCF format error while reading SNP read %s", id_.c_str());
-      if(le == 3) { // deux allèles
+      if(le != 3 && le != 1) {
+        // Rf_error("VCF format error while reading SNP read %s", id_.c_str());
+        (*pX).set(i,j,3); // set to NA
+      } else if(le == 3) { // deux allèles
         int g = 0;
         if(*t == 49) g++;
         if(*(t+2) == 49) g++;

@@ -1,4 +1,4 @@
-LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x), which.snps = x@snps$chr[beg:end] %in% getOption("gaston.autosomes"),
+LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x), which.snps = is.autosome(x@snps$chr[beg:end]),
                     dist.unit = c("bases", "indices"), extract = TRUE, keep = c("left", "right", "random")) {
   if(is.null(x@mu) | is.null(x@sigma))
     stop("LD.thin needs mu and sigma to be set for LD computation (use set.stats)")

@@ -38,10 +38,11 @@ setGeneric("rbind", signature="...")
 setMethod("rbind", signature=c(...="bed.matrix"), definition= function(..., deparse.level=1) {
   L <- list(...)
   M <- lapply(L, function(x) x@snps)
-  a <- .Call("gg_alleles_recoding",  PACKAGE='gaston', M)
 
   if(!all.eq( lapply(M, function(x) x$id))) 
     stop("SNP ids are not identical, can't bind matrices")
+
+  a <- .Call("gg_alleles_recoding",  PACKAGE='gaston', M)
 
   M <- lapply(L, function(x) x@bed)
   ped <- Reduce(rbind, lapply(L, function(x) x@ped))

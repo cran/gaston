@@ -4,10 +4,10 @@ set.stats <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOption(
   if(!is.logical(set.p) | !is.logical(set.mu_sigma)) 
     stop('set.* arguments must be logical')
 
-  w.a <- x@snps$chr %in% getOption("gaston.autosomes")
-  w.x <- x@snps$chr %in% getOption("gaston.chr.x")
-  w.y  <- x@snps$chr %in% getOption("gaston.chr.y")
-  w.mt <- x@snps$chr %in% getOption("gaston.chr.mt")
+  w.a  <- is.autosome(x@snps$chr)
+  w.x  <- is.chr.x(x@snps$chr)
+  w.y  <- is.chr.y(x@snps$chr)
+  w.mt <- is.chr.mt(x@snps$chr)
   w.f  <- x@ped$sex  == 2
   st <- .Call('gg_geno_stats', PACKAGE = 'gaston', x@bed, w.x, w.y, w.mt, w.f) 
 
@@ -42,7 +42,7 @@ set.stats <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOption(
 
   n.y <- sum(w.y)
   st$inds$callrate.y <- 1-st$inds$NAs.y/n.y
-  st$inds$hz.y <- st$inds$N1.mt/(n.y-st$inds$NAs.y)
+  st$inds$hz.y <- st$inds$N1.y/(n.y-st$inds$NAs.y)
 
   n.mt <- sum(w.mt)
   st$inds$callrate.mt <- 1-st$inds$NAs.mt/n.mt
@@ -75,10 +75,11 @@ set.stats <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOption(
 set.stats.ped <- function(x, verbose = getOption("gaston.verbose",TRUE)) {
   if( is(x)!='bed.matrix' ) stop('x must be an object of class bed.matrix')
 
-  w.a <- x@snps$chr %in% getOption("gaston.autosomes")
-  w.x <- x@snps$chr %in% getOption("gaston.chr.x")
-  w.y  <- x@snps$chr %in% getOption("gaston.chr.y")
-  w.mt <- x@snps$chr %in% getOption("gaston.chr.mt")
+  w.a  <- is.autosome(x@snps$chr)
+  w.x  <- is.chr.x(x@snps$chr)
+  w.y  <- is.chr.y(x@snps$chr)
+  w.mt <- is.chr.mt(x@snps$chr)
+
   st <- .Call('gg_geno_stats_inds', PACKAGE = 'gaston', x@bed, w.x, w.y, w.mt) 
 
   ############ completer inds/ped
@@ -92,7 +93,7 @@ set.stats.ped <- function(x, verbose = getOption("gaston.verbose",TRUE)) {
 
   n.y <- sum(w.y)
   st$inds$callrate.y <- 1-st$inds$NAs.y/n.y
-  st$inds$hz.y <- st$inds$N1.mt/(n.y-st$inds$NAs.y)
+  st$inds$hz.y <- st$inds$N1.y/(n.y-st$inds$NAs.y)
 
   n.mt <- sum(w.mt)
   st$inds$callrate.mt <- 1-st$inds$NAs.mt/n.mt
@@ -111,8 +112,8 @@ set.stats.snps <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOp
   if(!is.logical(set.p) | !is.logical(set.mu_sigma)) 
     stop('set.* arguments must be logical')
 
-  w.x <- x@snps$chr %in% getOption("gaston.chr.x")
-  w.y <- x@snps$chr %in% getOption("gaston.chr.y")
+  w.x  <- is.chr.x(x@snps$chr)
+  w.y  <- is.chr.y(x@snps$chr)
   w.f <- x@ped$sex  == 2
   st <- .Call('gg_geno_stats_snps', PACKAGE = 'gaston', x@bed, w.x, w.f) 
 

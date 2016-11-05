@@ -7,20 +7,17 @@
   Returns an updated \code{\link{bed.matrix}} with a new variable for the genomic sex
   of each individual.
 }
-\usage{ set.genomic.sex(x, plot = FALSE, verbose = getOption("gaston.verbose",TRUE),
-            chr.x = getOption("gaston.chr.x"), chr.y = getOption("gaston.chr.y") ) }
+\usage{ set.genomic.sex(x, plot = FALSE, verbose = getOption("gaston.verbose",TRUE)) }
 \arguments{
   \item{x}{ A \code{\link{bed.matrix}} }
   \item{plot}{ If \code{TRUE}, plots the variables used for the clustering }
   \item{verbose}{ If \code{TRUE}, displays information on the function actions }
-  \item{chr.x}{ Id of the X chromosome (defaut value according to PLINK convention) } 
-  \item{chr.y}{ Id of the Y chromosome (defaut value according to PLINK convention) } 
 }
 
 \details{
   For each individual, the function uses the hetorozygosity rate for SNPs on X chromosome, 
-  and the call rate for SNPs on the Y chromsomes, to cluster the individuals using 
-  \code{\link{kmeans}}.
+  and the call rate for SNPs on the Y chromosomes (both statistics computed by \code{\link{set.stats}}), 
+  to cluster the individuals using \code{\link{kmeans}}. 
 
   If \code{plot = TRUE}, a plot is produced with the two variables used and the clusters
   determined by \code{\link{kmeans}}.
@@ -34,7 +31,7 @@
 
 \author{Hervé Perdry}
 
-\seealso{ \code{\link{set.stats}}, \code{\link{set.hwe}} }
+\seealso{ \code{\link{set.stats}} }
 
 \keyword{ Genomic Sex }
 

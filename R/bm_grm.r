@@ -1,4 +1,4 @@
-GRM <- function(x, which.snps = x@snps$chr %in% getOption("gaston.autosomes"), chunk = 1L) {
+GRM <- function(x, which.snps = is.autosome(x@snps$chr), chunk = 1L) {
   if(!x@standardize_mu_sigma & !x@standardize_p) {
     if(!is.null(x@p)) x@standardize_p <- TRUE
     else stop("Can't center/scale x for LD computation (use set.stat)\n")
