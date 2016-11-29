@@ -25,6 +25,9 @@ Two tests of Hardy-Weinberg Equilibrium are proposed:
   }
 
 The function \code{set.stats} will be called first if necessary.
+
+The \eqn{p}-value is set to \eqn{1.0} for SNPs on chromosomes Y and MT. For SNPs on
+chromosomes X, currently, the test is performed using only the genotypic counts of women.
 }
 
 \value{

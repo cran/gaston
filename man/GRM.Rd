@@ -6,11 +6,12 @@
 \description{
   Compute the Genetic Relationship Matrix}
 
-\usage{ GRM(x, which.snps = is.autosome(x@snps$chr), chunk = 1L) }
+\usage{ GRM(x, which.snps, autosome.only = TRUE, chunk = 1L) }
 
 \arguments{
   \item{x}{ A \code{\link{bed.matrix}} }
-  \item{which.snps}{ Logical vector, giving which SNPs are used to compute the GRM. The default is to use all autosomal SNPs}
+  \item{which.snps}{ Logical vector, giving which snps to use in the computation.  The default is to use all autosomal SNPs}
+  \item{autosome.only}{ If \code{TRUE}, only autosomal SNPs will be considered. }
   \item{chunk}{ Parameter for the parallelization: how many SNPs are treated by each task}
 }
 

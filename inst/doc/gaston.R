@@ -423,7 +423,7 @@ fit10$tau/(fit10$tau+fit10$sigma2)
 
 
 ###################################################
-### code chunk number 54: gaston.Rnw:863-866
+### code chunk number 54: gaston.Rnw:864-867
 ###################################################
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
@@ -431,30 +431,30 @@ standardize(x) <- 'mu'
 
 
 ###################################################
-### code chunk number 55: gaston.Rnw:870-872
+### code chunk number 55: gaston.Rnw:871-873
 ###################################################
 set.seed(1)
 R <- random.pm(nrow(x))
 
 
 ###################################################
-### code chunk number 56: gaston.Rnw:876-878
+### code chunk number 56: gaston.Rnw:877-879
 ###################################################
 y <- 2 + x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) +
      lmm.simu(tau = 0.3, sigma2 = 1, eigenK=R$eigen)$y
 
 
 ###################################################
-### code chunk number 57: gaston.Rnw:884-887
+### code chunk number 57: gaston.Rnw:885-888
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
-t_score <- association.test(x, y, K = R$K)
-t_wald <- association.test(x, y, eigenK = R$eigen, test = "wald")
+t_score <- association.test(x, y, K = R$K, method = "lmm")
+t_wald <- association.test(x, y, eigenK = R$eigen, method = "lmm", test = "wald")
 plot( t_score$p, t_wald$p, log = "xy", xlab = "score", ylab = "wald")
 
 
 ###################################################
-### code chunk number 58: gaston.Rnw:894-896
+### code chunk number 58: gaston.Rnw:895-897
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 plot(-log10(t_score$p), xlab="SNP index", ylab = "-log(p)",
@@ -462,7 +462,7 @@ plot(-log10(t_score$p), xlab="SNP index", ylab = "-log(p)",
 
 
 ###################################################
-### code chunk number 59: gaston.Rnw:905-907
+### code chunk number 59: gaston.Rnw:906-908
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 lds <- LD(x, 351, c(1,ncol(x)))
@@ -470,11 +470,11 @@ plot(lds, -log10(t_score$p), xlab="r^2", ylab="-log(p)")
 
 
 ###################################################
-### code chunk number 60: gaston.Rnw:918-923
+### code chunk number 60: gaston.Rnw:919-924
 ###################################################
 getOption("SweaveHooks")[["fig"]]()
 y1 <- as.numeric(y > mean(y))
-t_binary <- association.test(x, y1, K = R$K, response = "binary")
+t_binary <- association.test(x, y1, K = R$K, method = "lmm", response = "binary")
 # (mini) Manhattan plot
 plot(-log10(t_binary$p), xlab="SNP index", ylab = "-log(p)",
       col = c(rep(1,350),2,rep(1,ncol(x)-351)))

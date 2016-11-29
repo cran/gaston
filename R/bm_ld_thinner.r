@@ -1,5 +1,11 @@
-LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x), which.snps = is.autosome(x@snps$chr[beg:end]),
+LD.thin <- function(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x), which.snps,
                     dist.unit = c("bases", "indices"), extract = TRUE, keep = c("left", "right", "random")) {
+
+  if(missing(which.snps)) which.snps <- rep(TRUE, end-beg+1)
+
+  if(!is.logical(which.snps) | length(which.snps) != end-beg+1)
+    stop("which.snps must be a Logical vector of length end - beg + 1")
+
   if(is.null(x@mu) | is.null(x@sigma))
     stop("LD.thin needs mu and sigma to be set for LD computation (use set.stats)")
 

@@ -1,4 +1,11 @@
-GRM <- function(x, which.snps = is.autosome(x@snps$chr), chunk = 1L) {
+GRM <- function(x, which.snps, autosome.only = TRUE, chunk = 1L) {
+  if(missing(which.snps)) which.snps <- rep(TRUE, ncol(x))
+  if(autosome.only) 
+    which.snps <- which.snps & is.autosome(x@snps$chr)
+
+  if(!is.logical(which.snps) | length(which.snps) != ncol(x))
+    stop("which.snps must be a Logical vector of length ncol(x)")
+  
   if(!x@standardize_mu_sigma & !x@standardize_p) {
     if(!is.null(x@p)) x@standardize_p <- TRUE
     else stop("Can't center/scale x for LD computation (use set.stat)\n")

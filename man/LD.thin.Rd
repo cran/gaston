@@ -6,8 +6,7 @@
 \description{ Select SNPs in LD below a given threshold. }
 \usage{
 LD.thin(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x),
-        which.snps = is.autosome(x@snps$chr[beg:end]),
-        dist.unit = c("bases", "indices"), extract = TRUE,
+        which.snps, dist.unit = c("bases", "indices"), extract = TRUE,
         keep = c("left", "right", "random"))
 }
 
@@ -17,7 +16,7 @@ LD.thin(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x),
   \item{max.dist}{ The maximum distance for which the LD is computed }
   \item{beg}{ The index of the first SNP to consider }
   \item{end}{ The index of the last SNP to consider }
-  \item{which.snps}{ Logical vector, giving which SNPs are considerd. The default is to use only autosomal SNPs}
+  \item{which.snps}{ Logical vector, giving which SNPs are considerd. The default is to use all SNPs}
   \item{dist.unit}{ Distance unit in \code{max.dist} }
   \item{extract}{ A \code{logical} indicating whether the function return a \code{bed.matrix} (\code{TRUE}) 
                   or a logical vector indicating which SNPs are selected (\code{FALSE}) }
@@ -28,7 +27,9 @@ LD.thin(x, threshold, max.dist = 100e3, beg = 1, end = ncol(x),
   The SNPs to keep are selected by a greedy algorithm. The LD is computed only for SNP pairs for which distance is inferior to 
   \code{max.dist}, expressed in number of bases if \code{dist.unit = "bases"}, or in number of SNPs if \code{dist.unit = "indices"}.
  
-  The algorithm tries to keep a maximum number of SNPs: it is not appropriate to select tag-SNPs.
+  The argument \code{which.snps} allows to consider only a subset of SNPs.
+
+  The algorithm tries to keep the largest possible number of SNPs: it is not appropriate to select tag-SNPs.
 }
 
 \value{

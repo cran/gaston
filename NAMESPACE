@@ -2,7 +2,7 @@ import(methods)
 
 importFrom("grDevices", "heat.colors", "dev.off", "pdf", "rgb")
 importFrom("graphics", "contour", "image", "legend", "par", "plot", "polygon", "rect", "segments", "strheight", "strwidth", "text")
-importFrom("stats", "pchisq", "quantile", "rnorm", "kmeans", "glm", "binomial")
+importFrom("stats", "pchisq", "quantile", "rnorm", "kmeans", "glm", "binomial", "pt")
 importFrom("utils", "read.table", "write.table")
 importFrom("Rcpp", "evalCpp") # just to avoid << function 'enterRNGScope' not provided by package 'Rcpp' >> error
 importFrom("RcppParallel", "setThreadOptions", "defaultNumThreads")

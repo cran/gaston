@@ -80,13 +80,14 @@ List geno_stats(matrix4 & A, LogicalVector chr_x, LogicalVector chr_y, LogicalVe
   for(size_t i = 0; i < A.nrow; i++) {
     // Quelle stat individus à mettre jour, selon chromosome
     int * pIN_; 
-    bool x = false;
+    bool xy = false;
     if(chr_x(i)) { 
       pIN_ = pINx;
-      x = true;
-    } else if(chr_y(i))
+      xy = true;
+    } else if(chr_y(i)) {
       pIN_ = pINy;
-    else if(chr_mt(i))
+      xy = true;
+    } else if(chr_mt(i))
       pIN_ = pINmt;
     else
       pIN_ = pIN;
@@ -104,7 +105,7 @@ List geno_stats(matrix4 & A, LogicalVector chr_x, LogicalVector chr_y, LogicalVe
       pIN_[16*j + 8 + (int) ((d>>4)&3)]++;
       pIN_[16*j + 12 + (int) ((d>>6)&3)]++;
 
-      if(x) { // SNPs femmes
+      if(xy) { // Stats SNPs en ne prenant en compte que les femmes
         d |= sex_[j];
         SNf(0,i) += N0[d];
         SNf(3,i) += N0[255-d];
@@ -114,7 +115,8 @@ List geno_stats(matrix4 & A, LogicalVector chr_x, LogicalVector chr_y, LogicalVe
     }
     // Des NAs en trop (la bordure)
     SN(3,i) -= (4*A.true_ncol - A.ncol);
-    // Pour les femmes la bordure + le nbre d'hommes
+    // Pour les femmes, 
+    // le masque met les hommes à NA et ne touche pas à la bordure
     SNf(3,i) -= (4*A.true_ncol - A.ncol) + nbm;
   }
   
@@ -142,7 +144,7 @@ List geno_stats(matrix4 & A, LogicalVector chr_x, LogicalVector chr_y, LogicalVe
   return L;
 }
 
-List geno_stats_snps(matrix4 & A, LogicalVector chr_x, LogicalVector sexf) {
+List geno_stats_snps(matrix4 & A, LogicalVector chr_xy, LogicalVector sexf) {
 
   // création vecteur de masques sex
   uint8_t * sex_ = new uint8_t[A.true_ncol];
@@ -160,7 +162,7 @@ List geno_stats_snps(matrix4 & A, LogicalVector chr_x, LogicalVector sexf) {
   IntegerMatrix SNf(4,A.nrow); // à remplir seulement pour chr X
 
   for(size_t i = 0; i < A.nrow; i++) {
-    bool x = chr_x(i);
+    bool xy = chr_xy(i);
     for(size_t j = 0; j < A.true_ncol; j++) {
       uint8_t d = A.data[i][j];
       SN(0,i) += N0[d];
@@ -168,7 +170,7 @@ List geno_stats_snps(matrix4 & A, LogicalVector chr_x, LogicalVector sexf) {
       SN(1,i) += N1[d];
       SN(2,i) += N1[255-d];
 
-      if(x) { // SNPs femmes
+      if(xy) { // Stats SNPs en ne prenant en compte que les femmes
         d |= sex_[j];
         SNf(0,i) += N0[d];
         SNf(3,i) += N0[255-d];
@@ -251,8 +253,8 @@ List geno_stats(XPtr<matrix4> p_A,  LogicalVector chr_x, LogicalVector chr_y, Lo
 }
 
 //[[Rcpp::export]]
-List geno_stats_snps(XPtr<matrix4> p_A,  LogicalVector chr_x, LogicalVector sexf) {
-  return geno_stats_snps(*p_A, chr_x, sexf);
+List geno_stats_snps(XPtr<matrix4> p_A,  LogicalVector chr_xy, LogicalVector sexf) {
+  return geno_stats_snps(*p_A, chr_xy, sexf);
 }
 
 //[[Rcpp::export]]
@@ -276,14 +278,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // geno_stats_snp
-RcppExport SEXP gg_geno_stats_snps(SEXP p_ASEXP, SEXP chr_xSEXP, SEXP sexfSEXP) {
+RcppExport SEXP gg_geno_stats_snps(SEXP p_ASEXP, SEXP chr_xySEXP, SEXP sexfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< XPtr<matrix4> >::type p_A(p_ASEXP);
-    Rcpp::traits::input_parameter< LogicalVector >::type chr_x(chr_xSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type chr_xy(chr_xySEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type sexf(sexfSEXP);
-    __result = Rcpp::wrap(geno_stats_snps(p_A, chr_x, sexf));
+    __result = Rcpp::wrap(geno_stats_snps(p_A, chr_xy, sexf));
     return __result;
 END_RCPP
 }

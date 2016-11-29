@@ -9,16 +9,27 @@ set.stats <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOption(
   w.y  <- is.chr.y(x@snps$chr)
   w.mt <- is.chr.mt(x@snps$chr)
   w.f  <- x@ped$sex  == 2
+  w.f[is.na(w.f)] <- FALSE   # tout ce qui n'est pas sex == 2 est pris comme un homme
+
   st <- .Call('gg_geno_stats', PACKAGE = 'gaston', x@bed, w.x, w.y, w.mt, w.f) 
 
+  nb.f <- sum(x@ped$sex == 2)
+  nb.h <- nrow(x) - nb.f
   ############  completer snps
   st$snps$callrate <- 1-st$snps$NAs/nrow(x)
+
   # correction pour chr y 
-  st$snps$callrate[w.y] <- 1-(st$snps$NAs[w.y]-st$snps$NAs.f[w.y])/sum(x@ped$sex == 1)
+  # (ped$sed peut être faux / on compte les NAs chez les individus avec sex != 2...)
+  st$snps$callrate[w.y] <- 1-(st$snps$NAs[w.y]-st$snps$NAs.f[w.y])/nb.h
 
   # freq allele alt
   n <- nrow(x) - st$snps$NAs;
   pp <- (2*st$snps$N2 + st$snps$N1)/(2*n);
+
+  # mise à NA des stats .f ailleurs que sur x ou y
+  st$snps$N0.f[!w.x & !w.y] <- NA;  st$snps$N1.f[!w.x & !w.y] <- NA
+  st$snps$N2.f[!w.x & !w.y] <- NA; st$snps$NAs.f[!w.x & !w.y] <- NA
+
   # correction pour chr x
   a <- st$snps$N2.f[w.x] + st$snps$N1.f[w.x] + st$snps$N2[w.x]
   b <- st$snps$N0.f[w.x] + st$snps$N1.f[w.x] + st$snps$N0[w.x]
@@ -28,8 +39,7 @@ set.stats <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOption(
   st$snps$hz <- st$snps$N1/n
 
   # correction pour chr x
-  nb.fe <- sum(x@ped$sex == 2)
-  st$snps$hz[w.x] <- st$snps$N1.f[w.x]/(nb.fe - st$snps$NAs.f[w.x])
+  st$snps$hz[w.x] <- st$snps$N1.f[w.x]/(nb.f - st$snps$NAs.f[w.x])
 
   ############ completer inds/ped
   n.a <- sum(w.a)
@@ -115,16 +125,29 @@ set.stats.snps <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOp
   w.x  <- is.chr.x(x@snps$chr)
   w.y  <- is.chr.y(x@snps$chr)
   w.f <- x@ped$sex  == 2
-  st <- .Call('gg_geno_stats_snps', PACKAGE = 'gaston', x@bed, w.x, w.f) 
+  w.f[is.na(w.f)] <- FALSE   # tout ce qui n'est pas sex == 2 est pris comme un homme
+
+  st <- .Call('gg_geno_stats_snps', PACKAGE = 'gaston', x@bed, w.x|w.y, w.f) 
+
+  nb.f <- sum(x@ped$sex == 2)
+  nb.h <- nrow(x) - nb.f
 
   ############  completer snps
   st$snps$callrate <- 1-st$snps$NAs/nrow(x)
+
   # correction pour chr y 
-  st$snps$callrate[w.y] <- 1-(st$snps$NAs[w.y]-st$snps$NAs.f[w.y])/sum(x@ped$sex == 1)
+  # (ped$sed peut être faux / on compte les NAs chez les individus avec sex != 2...)
+  st$snps$callrate[w.y] <- 1-(st$snps$NAs[w.y]-st$snps$NAs.f[w.y])/nb.h
+
+
+  # mise à NA des stats .f ailleurs que sur le x
+  st$snps$N0.f[!w.x] <- NA; st$snps$N1.f[!w.x] <- NA
+  st$snps$N2.f[!w.x] <- NA; st$snps$NAs.f[!w.x] <- NA
 
   # freq allele alt
   n <- nrow(x) - st$snps$NAs;
   pp <- (2*st$snps$N2 + st$snps$N1)/(2*n);
+
   # correction pour chr x
   a <- st$snps$N2.f[w.x] + st$snps$N1.f[w.x] + st$snps$N2[w.x]
   b <- st$snps$N0.f[w.x] + st$snps$N1.f[w.x] + st$snps$N0[w.x]
@@ -134,8 +157,7 @@ set.stats.snps <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOp
   st$snps$hz <- st$snps$N1/n
 
   # correction pour chr x
-  nb.fe <- sum(x@ped$sex == 2)
-  st$snps$hz[w.x] <- st$snps$N1.f[w.x]/(nb.fe - st$snps$NAs.f[w.x])
+  st$snps$hz[w.x] <- st$snps$N1.f[w.x]/(nb.f - st$snps$NAs.f[w.x])
 
   ########## insérer dans x
   x@snps[, names(st$snps)] <- st$snps
@@ -158,26 +180,4 @@ set.stats.snps <- function(x, set.p = TRUE, set.mu_sigma = TRUE, verbose = getOp
   }
   x
 }
-
-
-
-
-set.hwe <- function(x, method = c("chisquare", "exact"), verbose = getOption("gaston.verbose",TRUE)) {
-  if( !all(c("N0", "N1", "N2") %in% names(x@snps) )) {
-    if(verbose) cat("Computing basic stats\n")
-    x <- set.stats(x)
-  }
-  method <- match.arg(method)
-  if(method == 'chisquare') {
-    if(verbose) cat("Computing HW chi-square p-values\n")
-    hwe_ <- .Call('gg_hwe_chi', PACKAGE = 'gaston', x@snps$N0, x@snps$N1, x@snps$N2)
-  } else {
-    if(verbose) cat("Computing HW exact test p-values\n")
-    hwe_ <- .Call('gg_hwe', PACKAGE = 'gaston', x@snps$N0, x@snps$N1, x@snps$N2)
-  }
-  x@snps$hwe <- hwe_
-  x
-}
-
-
 

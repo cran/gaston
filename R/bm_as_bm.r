@@ -1,10 +1,9 @@
 as.bed.matrix <- function(x, fam, bim) {
-  if ( !is.null(fam) & !is.data.frame(fam) ) stop('fam must be a data.frame or NULL.')
-  if ( !is.null(bim) & !is.data.frame(bim) ) stop('bim must be a data.frame or NULL.')
 
   bed <- .Call('gg_as_matrix4', PACKAGE = 'gaston', x)
 
   ped <- if(!missing(fam)) {
+            if ( !is.null(fam) & !is.data.frame(fam) ) stop('fam must be a data.frame or NULL.')
             if(all(pednames %in% names(fam))) 
               fam
             else 
@@ -17,6 +16,7 @@ as.bed.matrix <- function(x, fam, bim) {
          }  
 
   snps <- if(!missing(bim)) {
+            if ( !is.null(bim) & !is.data.frame(bim) ) stop('bim must be a data.frame or NULL.')
             if(all(snpnames %in% names(bim))) 
                bim
             else 

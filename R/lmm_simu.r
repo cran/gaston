@@ -1,6 +1,6 @@
 lmm.simu <- function(tau, sigma2, K, eigenK = eigen(K), X, beta) {
   if(any(eigenK$values < -1e-5))
-    stop("K is not positive")
+    warning("K is not positive, setting negative eigenvalues to 0")
   eigenK$values[eigenK$values < 0] <- 0
   # partie fixe
   xbeta <- if(!missing(X)) {

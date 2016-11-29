@@ -1,10 +1,8 @@
 Package: gaston
 Type: Package
-Title: Genetic Data Manipulation (Quality Control, GRM and LD
-        Computations, PCA), Linear and Logistic Mixed Models (AIREML
-        Algorithm), Association Testing
-Version: 1.4.8
-Date: 2016-10-01
+Title: Genetic Data Handling (QC, GRM, LD, PCA) & Linear Mixed Models
+Version: 1.4.9
+Date: 2016-11-22
 Encoding: UTF-8
 Author: Hervé Perdry & Claire Dandine-Roulland
 Maintainer: Hervé Perdry <herve.perdry@u-psud.fr>
@@ -16,6 +14,6 @@ Imports: WhopGenome (>= 0.9.4)
 NeedsCompilation: yes
 LazyLoad: yes
 LazyData: yes
-Packaged: 2016-11-04 17:21:34 UTC; rv
+Packaged: 2016-11-29 12:21:08 UTC; rv
 Repository: CRAN
-Date/Publication: 2016-11-05 00:09:19
+Date/Publication: 2016-11-29 15:08:34

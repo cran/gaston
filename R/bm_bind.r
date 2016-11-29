@@ -8,7 +8,9 @@ setMethod("cbind", signature=c(...="bed.matrix"), definition= function(..., depa
   if(!all.eq( lapply(L, function(x) x@ped$famid)) | !all.eq( lapply(L, function(x) x@ped$id)) )
     stop("Individuals famids / ids are not identical, can't bind matrices")
 
-  snps <- Reduce(rbind, lapply(L, function(x) x@snps))
+  common_colnames <- Reduce(intersect, lapply(L, function(x) colnames(x@snps)))
+  snps <- Reduce(rbind, lapply(L, function(x) x@snps[common_colnames]))
+
   if(anyDuplicated(snps$id))
     warning("Duplicated SNPs id's")
 
@@ -42,14 +44,14 @@ setMethod("rbind", signature=c(...="bed.matrix"), definition= function(..., depa
   if(!all.eq( lapply(M, function(x) x$id))) 
     stop("SNP ids are not identical, can't bind matrices")
 
-  a <- .Call("gg_alleles_recoding",  PACKAGE='gaston', M)
-
-  M <- lapply(L, function(x) x@bed)
-  ped <- Reduce(rbind, lapply(L, function(x) x@ped))
+  common_colnames <- Reduce(intersect, lapply(L, function(x) colnames(x@ped)))
+  ped <- Reduce(rbind, lapply(L, function(x) x@ped[common_colnames]))
 
   if(anyDuplicated(ped[, c("famid", "id")]))
     warning("There are duplicated individuals (same family and individual id)")
 
+  a <- .Call("gg_alleles_recoding",  PACKAGE='gaston', M)
+  M <- lapply(L, function(x) x@bed)
   bed <- .Call("gg_bind_inds2",  PACKAGE='gaston', M, a$flip)
 
   x <- new("bed.matrix", bed = bed, snps = L[[1]]@snps, ped = ped,
