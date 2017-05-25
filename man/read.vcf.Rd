@@ -4,17 +4,33 @@
 \title{ Create a \code{\link{bed.matrix}} from VCF files }
 
 \description{ Create a \code{\link{bed.matrix}} from a \code{.vcf} file.}
-\usage{ read.vcf(filename, max.snps, verbose = getOption("gaston.verbose",TRUE)) }
+\usage{ read.vcf(file, max.snps, get.info = FALSE, convert.chr = TRUE, 
+                 verbose = getOption("gaston.verbose",TRUE)) }
 
 \arguments{
-  \item{filename}{ Name of VCF file }
-  \item{max.snps}{ The maximal number of SNPs to read. }
+  \item{file}{ The name of the VCF file to read}
+  \item{max.snps}{ The maximal number of SNPs to read }
+  \item{get.info}{ If \code{TRUE}, the INFO field from the VCF file will integrated
+                   in \code{@ped$info}}
+  \item{convert.chr}{ If \code{TRUE}, chromosomes ids \code{"X"}, \code{"Y"} and \code{"MT"}
+                      will be converted in their numeric equivalents}
   \item{verbose}{ If \code{TRUE}, display information on the function progress }
 }
 
 \details{
-This function relies on the package \code{\link[WhopGenome:WhopGenome-package]{WhopGenome}}.
-Details about vcf format are given in \url{http://www.1000genomes.org/wiki/Analysis/Variant\%20Call\%20Format/vcf-variant-call-format-version-41}
+The vcf format is described in \url{http://www.1000genomes.org/wiki/Analysis/Variant\%20Call\%20Format/vcf-variant-call-format-version-41}
+
+In addition to the usual data in the slot \code{@snps}, the bed.matrices produced by \code{read.vcf} have
+\code{@snps$quality} and \code{@snps$filter} columns corresponding to the QUAL and FILTER fields in the VCF
+file. If \code{get.info = TRUE}, an additionnal column \code{@snps$info} is added, corresponding to the
+INFO field.
+
+The information about individuals in VCF files is incomplete: in the slot \code{@ped}, the columns
+\code{@ped$famid} and \code{@ped$id} will both contain the sample id; sex and phenotypes will be set
+to unknown.
+
+The function currently assumes that the \code{GT} field is the first field in the genotypes format.
+If it is not the case, the variants are discarded.
 }
 
 \value{ A \code{\link{bed.matrix}} }
@@ -24,9 +40,9 @@ Details about vcf format are given in \url{http://www.1000genomes.org/wiki/Analy
 \seealso{ \code{\link{read.bed.matrix}} }
 
 \examples{
-# Read vcf file
+## Read vcf file (from file name)
 filepath <-system.file("extdata", "LCT.vcf.gz", package="gaston")
-x <- read.vcf( filepath )
-x
+x1 <- read.vcf( filepath )
+x1
 }
 \keyword{ vcf files }

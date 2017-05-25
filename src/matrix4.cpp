@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include <RcppParallel.h>
 #include <iostream>
 #include "matrix4.h"
 
@@ -66,7 +65,7 @@ matrix4::~matrix4() {
   Rcout << "destruction nrow = " << nrow << ", ncol = " << ncol << "\n";
   #endif
   for(size_t i = 0; i < nrow; i++) delete[] data[i];
-  delete[] data;
+  if(nrow > 0) delete[] data;
 }
 
 // affectation

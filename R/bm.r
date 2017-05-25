@@ -118,3 +118,4 @@ setMethod(show, signature("bed.matrix"),
     }
   } 
 )
+

@@ -1,8 +1,8 @@
 Package: gaston
 Type: Package
 Title: Genetic Data Handling (QC, GRM, LD, PCA) & Linear Mixed Models
-Version: 1.4.9
-Date: 2016-11-22
+Version: 1.5
+Date: 2017-05-24
 Encoding: UTF-8
 Author: Hervé Perdry & Claire Dandine-Roulland
 Maintainer: Hervé Perdry <herve.perdry@u-psud.fr>
@@ -10,10 +10,10 @@ Description: Manipulation of genetic data (SNPs), computation of Genetic Relatio
 License: GPL-3
 LinkingTo: Rcpp, RcppParallel, RcppEigen
 Depends: Rcpp, RcppParallel, methods
-Imports: WhopGenome (>= 0.9.4)
+Imports:
 NeedsCompilation: yes
 LazyLoad: yes
 LazyData: yes
-Packaged: 2016-11-29 12:21:08 UTC; rv
+Packaged: 2017-05-25 18:59:02 UTC; rv
 Repository: CRAN
-Date/Publication: 2016-11-29 15:08:34
+Date/Publication: 2017-05-25 21:13:31 UTC

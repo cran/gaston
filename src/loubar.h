@@ -1,5 +1,7 @@
 #include <iostream>
 #include <Rcpp.h>
+#ifndef GASTONloubar
+#define GASTONloubar
 
 using namespace Rcpp;
 
@@ -9,7 +11,9 @@ using namespace Rcpp;
  * pour ne pas avoir à gérer ça dans les fonctions)
  */
 
+#ifndef DEBUG 
 #define DEBUG false
+#endif
 
 struct D {
   D() {}
@@ -225,12 +229,4 @@ NumericMatrix as_r(lou & A);
 NumericVector as_r(bar & A);
 
 
-
-
-
-
-
-
-
-
-
+#endif
