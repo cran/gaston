@@ -52,6 +52,8 @@ association.test <- function(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
 
     if(response == "quantitative") { # score (argument K), wald ou lrt (eigen K) possibles
       if(test == "score") {
+        if(p > 0) 
+          X <- cbind(X, eigenK$vectors[,seq_len(p)])
         model <- lmm.aireml(Y, X = X, K, get.P = TRUE, ... )
         t <- .Call("gg_GWAS_lmm_score_f", PACKAGE = "gaston", x@bed, model$Py, model$P, x@mu, beg-1, end-1)
         t$p <- pchisq( t$score, df = 1, lower.tail=FALSE)
@@ -65,6 +67,8 @@ association.test <- function(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
         t$p <- pchisq( t$LRT, df = 1, lower.tail=FALSE)
       }
     } else { # response == "binary", seulement le score test, avec argument K
+      if(p > 0) 
+        X <- cbind(X, eigenK$vectors[,seq_len(p)])
       if(test == "score") {
         model <- logistic.mm.aireml(Y, X = X, K, get.P = TRUE, ... )
         omega <- model$BLUP_omega
@@ -103,7 +107,7 @@ association.test <- function(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
       t$p <- pchisq( (t$beta/t$sd)**2, df = 1, lower.tail=FALSE)
     }
   }
-  L <- list(chr = x@snps$chr, pos = x@snps$pos, id  = x@snps$id)
+  L <- data.frame(chr = x@snps$chr, pos = x@snps$pos, id  = x@snps$id)
   if(beg > 1 | end < ncol(x))  # avoid copy
     L <- L[beg:end,] 
 
@@ -116,7 +120,9 @@ checkX <- function(X, mean.y) {
   n <- ncol(X1)
   a <- crossprod(X1)
   b <- a[ 2:n, 2:n, drop = FALSE ]
-  if( abs(det(b)) < 1e-4 ) stop("Covariate matrix is (quasi) singular")
+  det.b <- det(b)
+  if( is.na(det.b) ) stop("Covariates can't be NA")
+  if( abs(det.b) < 1e-4 ) stop("Covariate matrix is (quasi) singular")
   if( abs(det(a)) > 1e-4 & mean.y > 1e-4) {
     warning("An intercept column was added to the covariate matrix X")
     return(X1)

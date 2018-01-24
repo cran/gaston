@@ -1,12 +1,12 @@
 #include <Rcpp.h>
-#include <RcppParallel.h>
+#include "Parallel.h"
 #include <iostream>
 #include <ctime>
 #include "matrix4.h"
 #include "loubar.h"
 
 using namespace Rcpp;
-using namespace RcppParallel;
+using namespace Parallel;
 
 
 struct paraPro_p : public Worker {
@@ -22,7 +22,7 @@ struct paraPro_p : public Worker {
 
   //constructeur
   paraPro_p(matrix4 & A, std::vector<double> p, size_t r, double * v, double * Av)
-           : A(A), p(p), ncol(A.ncol), true_ncol(A.true_ncol), v(v), r(r), Av(Av) {}
+           : A(A), p(p), ncol(A.ncol), true_ncol(A.true_ncol), r(r), v(v), Av(Av) {}
 
   //worker
   void operator()(size_t beg, size_t end) {

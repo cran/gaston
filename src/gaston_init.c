@@ -11,6 +11,19 @@
 extern void qfc(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
+extern SEXP gg_random_ortho(SEXP);
+extern SEXP gg_manhattan_thinning(SEXP, SEXP, SEXP, SEXP);
+extern SEXP gg_pre_likelihood(SEXP, SEXP, SEXP, SEXP);
+extern SEXP gg_pre_likelihood_nofix(SEXP, SEXP, SEXP);
+extern SEXP gg_re_likelihood(SEXP, SEXP, SEXP, SEXP);
+extern SEXP gg_re_likelihood_nofix(SEXP, SEXP, SEXP);
+extern SEXP gg_SNPmatch(SEXP, SEXP);
+extern SEXP gg_which_duplicated_chr_pos(SEXP, SEXP);
+extern SEXP gg_which_duplicated_chr_pos_alleles(SEXP, SEXP, SEXP, SEXP);
+extern SEXP gg_which_duplicated_id(SEXP);
+extern SEXP gg_which_duplicated_id_chr_pos(SEXP, SEXP, SEXP);
+extern SEXP gg_which_duplicated_id_chr_pos_alleles(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP gg_logp_thinning(SEXP, SEXP);
 extern SEXP gg_AIREML1_logit(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP gg_AIREML1_logit_nofix(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP gg_AIREML1_nofix(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -76,6 +89,8 @@ extern SEXP gg_set_snp_to_na(SEXP, SEXP);
 extern SEXP gg_snp_hz_to_na(SEXP, SEXP);
 extern SEXP gg_write_bed_file(SEXP, SEXP);
 extern SEXP isnullptr(SEXP);
+extern SEXP set_nb_threads(SEXP);
+extern SEXP set_nb_threads_to_default();
 
 static const R_CMethodDef CEntries[] = {
     {"qfc", (DL_FUNC) &qfc, 11},
@@ -83,6 +98,19 @@ static const R_CMethodDef CEntries[] = {
 };
 
 static const R_CallMethodDef CallEntries[] = {
+    {"gg_random_ortho",                   (DL_FUNC) &gg_random_ortho,                    1},
+    {"gg_manhattan_thinning",             (DL_FUNC) &gg_manhattan_thinning,              4},
+    {"gg_re_likelihood",                  (DL_FUNC) &gg_re_likelihood,                   4},
+    {"gg_re_likelihood_nofix",            (DL_FUNC) &gg_re_likelihood_nofix,             3},
+    {"gg_pre_likelihood",                 (DL_FUNC) &gg_pre_likelihood,                  4},
+    {"gg_pre_likelihood_nofix",           (DL_FUNC) &gg_pre_likelihood_nofix,            3},
+    {"gg_SNPmatch",                       (DL_FUNC) &gg_SNPmatch,                        2},
+    {"gg_which_duplicated_chr_pos",       (DL_FUNC) &gg_which_duplicated_chr_pos,        2},
+    {"gg_which_duplicated_chr_pos_alleles", (DL_FUNC) &gg_which_duplicated_chr_pos_alleles, 4},
+    {"gg_which_duplicated_id",            (DL_FUNC) &gg_which_duplicated_id,             1},
+    {"gg_which_duplicated_id_chr_pos",    (DL_FUNC) &gg_which_duplicated_id_chr_pos,     3},
+    {"gg_which_duplicated_id_chr_pos_alleles", (DL_FUNC) &gg_which_duplicated_id_chr_pos_alleles, 5},
+    {"gg_logp_thinning",                  (DL_FUNC) &gg_logp_thinning,                   2},
     {"gg_AIREML1_logit",                  (DL_FUNC) &gg_AIREML1_logit,                  13},
     {"gg_AIREML1_logit_nofix",            (DL_FUNC) &gg_AIREML1_logit_nofix,            10},
     {"gg_AIREML1_nofix",                  (DL_FUNC) &gg_AIREML1_nofix,                  14},
@@ -148,6 +176,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"gg_snp_hz_to_na",                   (DL_FUNC) &gg_snp_hz_to_na,                    2},
     {"gg_write_bed_file",                 (DL_FUNC) &gg_write_bed_file,                  2},
     {"isnullptr",                         (DL_FUNC) &isnullptr,                          1},
+    {"set_nb_threads",                    (DL_FUNC) &set_nb_threads,                     1},
+    {"set_nb_threads_to_default",         (DL_FUNC) &set_nb_threads_to_default,          0},
     {NULL, NULL, 0}
 };
 
