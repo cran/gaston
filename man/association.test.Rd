@@ -60,9 +60,11 @@ association.test(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
   \deqn{ \mbox{logit}(P[Y=1| X, G, \omega])  = X\alpha + G\beta + \omega}{logit P(Y=1|X,G,omega)  = X alpha + G beta + omega}
   with \eqn{ \omega \sim N(0,\tau K) }{omega ~ N(0, tau K)}. 
   \eqn{G} is the genotype vector of the SNP, \eqn{K}{K} is a Genetic Relationship Matrix (GRM),
-  \eqn{X} the covariable matrix. A score test is performed, independantly of the value of \code{test}.
+  \eqn{X} the covariable matrix. A score test is performed, independently of the value of \code{test}.
   All parameters under null model are estimated with the same procedure as in \code{\link{logistic.mm.aireml}}.
-  It is possible to give a list in argument \code{K} for inclusion of several random effects in the model.
+  In case of convergence problems of the null problem, the user can try several starting values (in particular
+  with parameter \code{tau}, trying e.g. \code{tau = 0.1} or another value).
+  It is possible to give a list of matrices in parameter \code{K} for inclusion of several random effects in the model.
   If \code{p} is positive, the paramater \code{eigenK} needs to be given as well.
 
   Note: this function is not multithreaded. Wald test with Linear Mixed Models are computationally intensive, 
@@ -72,8 +74,8 @@ association.test(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
 }
 
 \value{
-  A data frame, giving for each considered SNP, some of the following columns depending on the 
-  values of \code{method} and \code{test}:
+  A data frame, giving for each considered SNP, its position, id, alleles, and 
+  some of the following columns depending on the values of \code{method} and \code{test}:
   \item{score}{Score statistic for each SNP}
   \item{h2}{Estimated value of \eqn{\tau \over {\tau + \sigma^2}}{tau/(tau + sigma^2)}}
   \item{beta}{Estimated value of \eqn{\beta}{beta}}
@@ -87,10 +89,6 @@ association.test(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
 
 \examples{
 \donttest{
-# Product below is multithreaded; temporarily set nb threads to 2 to comply with CRAN rules
-n.threads <- getNumThreads()
-setThreadOptions(2)
-
 # Load data
 data(TTN)
 x <- as.bed.matrix(TTN.gen, TTN.fam, TTN.bim)
@@ -118,9 +116,6 @@ y1 <- as.numeric(y > mean(y))
 t_binary <- association.test(x, y1, method = "lm", response = "binary")
 # another small Manhattan plot
 manhattan(t_binary, col = rgb(lds,0,0), pch = 20)
-
-# back to previous nb threads value
-setThreadOptions(n.threads)
 
 }}
 

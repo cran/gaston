@@ -1,4 +1,4 @@
-## ----echo=FALSE-------------------------------------------------------------------------
+## ----echo=FALSE, include=FALSE----------------------------------------------------------
 require(knitr)
 options(width = 90, prompt="> ")
 knit_hooks$set(fig.mar=function() par(mar=c(5.1,4.1,3.1,2.1)))
