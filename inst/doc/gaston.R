@@ -260,33 +260,33 @@ fit10$tau/(fit10$tau+fit10$sigma2)
 ## ---------------------------------------------------------------------------------------
 data(AGT)
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
-standardize(x) <- 'mu'
+standardize(x) <- 'p'
 
 ## ---------------------------------------------------------------------------------------
-set.seed(1)
+set.seed(27)
 R <- random.pm(nrow(x))
 
 ## ---------------------------------------------------------------------------------------
-y <- 2 + x %*% c(rep(0,350),0.25,rep(0,ncol(x)-351)) +
+y <- 2 + x %*% c(rep(0,350),0.35,rep(0,ncol(x)-351)) +
      lmm.simu(tau = 0.3, sigma2 = 1, eigenK=R$eigen)$y
 
 ## ----fig.mar=TRUE-----------------------------------------------------------------------
-t_score <- association.test(x, y, K = R$K, method = "lmm")
-t_wald <- association.test(x, y, eigenK = R$eigen, method = "lmm", test = "wald")
-plot( t_score$p, t_wald$p, log = "xy", xlab = "score", ylab = "wald")
+t_wald <- association.test(x, y, K = R$K, method = "lm", test = "wald")
+t_wald_mixed <- association.test(x, y, eigenK = R$eigen, method = "lmm", test = "wald")
+plot( t_wald$p, t_wald_mixed$p, log = "xy", xlab = "lm (wald)", ylab = "lmm (wald)")
+abline(0,1,lty=3)
 
 ## ----fig.mar=TRUE, fig.width=12, out.width='0.7\\textwidth'-----------------------------
-plot(-log10(t_score$p), xlab="SNP index", ylab = "-log(p)",
-      col = c(rep(1,350),2,rep(1,ncol(x)-351)))
+manhattan(t_wald_mixed, col = ifelse(1:ncol(x) == 351, "red", "black"))
 
 ## ----fig.mar=TRUE-----------------------------------------------------------------------
 lds <- LD(x, 351, c(1,ncol(x)))
-plot(lds, -log10(t_score$p), xlab="r^2", ylab="-log(p)")
+plot(lds, -log10(t_wald_mixed$p), xlab="r^2", ylab="-log(p)")
 
-## ----fig.mar=TRUE, fig.width=12, out.width='0.7\\textwidth'-----------------------------
+## ----fig.mar=TRUE-----------------------------------------------------------------------
 y1 <- as.numeric(y > mean(y))
-t_binary <- association.test(x, y1, K = R$K, method = "lmm", response = "binary")
-# (mini) Manhattan plot
-plot(-log10(t_binary$p), xlab="SNP index", ylab = "-log(p)",
-      col = c(rep(1,350),2,rep(1,ncol(x)-351)))
+t_binary <- association.test(x, y1, K = R$K, method = "lm", response = "binary", test="wald")
+t_binary_mixed <- association.test(x, y1, K = R$K, method = "lmm", response = "binary")
+plot( t_binary$p, t_binary_mixed$p, log = "xy", xlab = "lm (wald)", ylab = "lmm (score)" )
+abline(0,1,lty=3)
 

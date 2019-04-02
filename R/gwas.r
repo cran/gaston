@@ -4,7 +4,7 @@ association.test <- function(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
                              K, eigenK, beg = 1, end = ncol(x), p = 0, 
                              tol = .Machine$double.eps^0.25, ...) {
 
-  if(beg < 1 || end > ncol(x)) stop("range too wide")
+  if(beg < 1 | end > ncol(x)) stop("range too wide")
   if(is.null(x@mu) | is.null(x@p)) stop("Need p and mu to be set in x (use set.stats)")
   if(length(Y) != nrow(x)) stop("Dimensions of Y and x mismatch")
   
@@ -14,7 +14,13 @@ association.test <- function(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
   # check dimensions before anything
   n <- nrow(x)
   if(!missing(K)) {
-    if(n != nrow(K) | n != ncol(K)) stop("K and x dimensions don't match")
+    if(!is.list(K)) { 
+      if(n != nrow(K) | n != ncol(K)) 
+        stop("K and x dimensions don't match")
+    } else {
+      if(any(n != sapply(K, nrow)) | any(n != sapply(K, ncol)))
+        stop("K and x dimensions don't match")
+    }
   }
   if(!missing(eigenK)) {
     if(n != nrow(eigenK$vectors) | n != ncol(eigenK$vectors) | n != length(eigenK$values)) 
@@ -39,7 +45,7 @@ association.test <- function(x, Y = x@ped$pheno, X = matrix(1, nrow(x)),
     X <- trans.X(X, mean.y = mean(Y))
   }
 
-   # random effect
+  # random effect
   if(method == "lmm") { 
 
     # if(response == "binary" & test != "score") {

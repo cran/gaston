@@ -1,15 +1,15 @@
 Package: gaston
 Type: Package
 Title: Genetic Data Handling (QC, GRM, LD, PCA) & Linear Mixed Models
-Version: 1.5.4
-Date: 2018-07-10
+Version: 1.5.5
+Date: 2019-04-01
 Encoding: UTF-8
 VignetteBuilder: knitr
 Authors@R: c( person("Hervé", "Perdry", role = c("cre", "aut", "cph"), email = "herve.perdry@u-psud.fr"), 
               person("Claire", "Dandine-Roulland", role = c("aut", "cph")),
               person("Deepak", "Bandyopadhyay", role = "cph", comment = "C++ gzstream class" ), # Deepak & Lutz for gzstream class
               person("Lutz", "Kettner", role = "cph", comment = "C++ gzstream class" ) )
-Description: Manipulation of genetic data (SNPs). Computation of GRM and dominance matrix, LD, heritability with efficient algorithms for linear mixed model (AIREML) .
+Description: Manipulation of genetic data (SNPs). Computation of GRM and dominance matrix, LD, heritability with efficient algorithms for linear mixed model (AIREML). Dandine et al <doi:10.1159/000488519>.
 License: GPL-3
 LinkingTo: Rcpp, RcppParallel, RcppEigen
 Suggests: knitr
@@ -18,11 +18,11 @@ Imports:
 NeedsCompilation: yes
 LazyLoad: yes
 LazyData: yes
-Packaged: 2018-07-15 09:39:49 UTC; rv
+Packaged: 2019-04-01 19:26:07 UTC; rv
 Author: Hervé Perdry [cre, aut, cph],
   Claire Dandine-Roulland [aut, cph],
   Deepak Bandyopadhyay [cph] (C++ gzstream class),
   Lutz Kettner [cph] (C++ gzstream class)
 Maintainer: Hervé Perdry <herve.perdry@u-psud.fr>
 Repository: CRAN
-Date/Publication: 2018-07-15 10:30:03 UTC
+Date/Publication: 2019-04-02 11:30:08 UTC
