@@ -1,8 +1,8 @@
 Package: gaston
 Type: Package
 Title: Genetic Data Handling (QC, GRM, LD, PCA) & Linear Mixed Models
-Version: 1.5.5
-Date: 2019-04-01
+Version: 1.5.6
+Date: 2020-02-21
 Encoding: UTF-8
 VignetteBuilder: knitr
 Authors@R: c( person("Hervé", "Perdry", role = c("cre", "aut", "cph"), email = "herve.perdry@u-psud.fr"), 
@@ -18,11 +18,11 @@ Imports:
 NeedsCompilation: yes
 LazyLoad: yes
 LazyData: yes
-Packaged: 2019-04-01 19:26:07 UTC; rv
+Packaged: 2020-02-24 15:16:16 UTC; rv
 Author: Hervé Perdry [cre, aut, cph],
   Claire Dandine-Roulland [aut, cph],
   Deepak Bandyopadhyay [cph] (C++ gzstream class),
   Lutz Kettner [cph] (C++ gzstream class)
 Maintainer: Hervé Perdry <herve.perdry@u-psud.fr>
 Repository: CRAN
-Date/Publication: 2019-04-02 11:30:08 UTC
+Date/Publication: 2020-02-26 17:40:02 UTC
