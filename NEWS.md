@@ -226,4 +226,13 @@
 
 * new function LD.clump
 
+# gaston 1.5.9  
+
+## New features
+
+* Default argument max.dist = 500e3 in LD.thin
+
+## Bug fixes
+
+* Corrected bug in ld clump, thanks to valgrind and Pr Ripley <3
 

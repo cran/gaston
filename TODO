@@ -1,5 +1,21 @@
 * ld clump = on n'a pas le choix des unités pour la distance...
 
+* bed.order <- fonction(x) x[ , order( x@snps$chr, x@snps$pos ) ]
+  -- si la bed matrix n'est pas triée LD thin (et ld clump) feront n'importe 
+  quoi. Emettre warning après toute création (cbind, extraction) ou lecture
+  de matrice (voire à l'affichage ?)
+
+* une fonction pour l'insertion d'un phénotype...
+
+* dans les fonctions lmm aireml etc : normaliser le trait par défaut avant 
+  l'estimation (+ QR déc covariables ?)
+
+* mmanhattan plot : si les chr ne sont pas numériques, c'est n'importe quoi
+
+* pi hat de plink
+
+* dans lmm.aireml lmm.diago standardiser Y avant les analyses.
+
 * il faudrait pouvoir inverser les allèles en fonction de leur MAF
 
 * autosomes / chr Y / etc... possibilité de donner tout un vecteur pour les chr x et y ?

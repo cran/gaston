@@ -1,6 +1,6 @@
-942b3f67722ff94f853df072c4a2a67c *DESCRIPTION
+96a19cd9a378b7eda5f773bb85aaf185 *DESCRIPTION
 2afc3ab2bb67ccf4c758815282a85ad6 *NAMESPACE
-2054b0e1113c6e48c647577557394e12 *NEWS.md
+4344823f59a30e80245debd91151e987 *NEWS.md
 94a137056cb2b726d5a7080c670b0182 *R/all_eq.r
 c4c80b94b6ade32bedbdb0f05391318e *R/bm.r
 3925e520f0834502e07562a0c33fba82 *R/bm_as_bm.r
@@ -20,7 +20,7 @@ bd50097a1e8b63770b4a30e6350aaac1 *R/bm_vcf.r
 6784ef3ee00077853e506289a2ea0921 *R/gwas.r
 79f1396d0cb90123dd68d539320eb954 *R/ld_clump.r
 f046d78387cd6bf79f728974103f45bb *R/ld_plot.r
-fc509f9f4607de8f3cbbaffa7f67fd55 *R/ld_thin.r
+620f76b183b656935d91e934587024d0 *R/ld_thin.r
 0512ed98107b5664b2513f1b1b0a018a *R/lik_contour.r
 edf4ec74f4f0ca5f2cba0f89f1c6656a *R/lmm.profile.restricted.likelihood.r
 22e5c3d6beb7e6bf53299373f078986f *R/lmm.restricted.likelihood.r
@@ -41,8 +41,8 @@ be28b697d241654ffbd360a73c4281b9 *R/score.r
 b17bc5945edba3d2d59e7806d91d1c2f *R/snp_match.r
 cff8b510c00a82bab4a0f309bae81f56 *R/snp_rm_duplicates.r
 ada33293d49fc1f3bcb94a64db89021b *R/zzz.r
-575136f475b0bc276d15e99bdb8e4a3a *TODO
-06db1d3c5afde7de856bdcf8f46b06ad *build/vignette.rds
+2ab9647a86d7b3c23c2be5fdb3f00a0b *TODO
+b3d2e0639ebb047e643a5a962e80b87b *build/vignette.rds
 3596d85a370f43e3e00ac131fbbbf95c *data/AGT.rda
 34e12c308b68ce8e6ffaf071af82af7c *data/LCT.rda
 28e30890deb426c070776d01a1320d49 *data/TTN.rda
@@ -50,10 +50,10 @@ ada33293d49fc1f3bcb94a64db89021b *R/zzz.r
 494cd0391e2b2deef2e3772f3ef08c44 *data/dupli.rda
 2e48e3a071d2322c17ed078b07c6d96b *inst/doc/gaston-faq.R
 4d542759e550698058cc34da09fd584b *inst/doc/gaston-faq.Rnw
-1406dfa767f756275ad3d7776f89a4f4 *inst/doc/gaston-faq.pdf
+8182a5e015b27180c6337376a03782a9 *inst/doc/gaston-faq.pdf
 ee841431c2ed06ad377c1ed6fe20054a *inst/doc/gaston.R
 052ec2b0f5c7dd115cbae9ae2252940d *inst/doc/gaston.Rnw
-84470d9aaa4ae6ce8583ea591d3bead3 *inst/doc/gaston.pdf
+24129c5ca3690b4f0875250252edc45a *inst/doc/gaston.pdf
 12c31f58f990024d8b77c3b0c9dc86cc *inst/extdata/LCT.bed
 2273b75e59551e464ae55f404d2887ac *inst/extdata/LCT.bim
 3b1a418c594a35920264a5743580180f *inst/extdata/LCT.fam
@@ -98,7 +98,7 @@ f9c3974a3c3a9357b78094bc5422731e *man/LCT.Rd
 379c3c9cc71d6772b4e9e3b19e6547fd *man/LD.Rd
 f785e0ffe21c8769b78d158e6334dca8 *man/LD.clump.Rd
 c93bbe7f03d59de5422fb16881062cb9 *man/LD.plot.Rd
-f69a67945787fdfa86363c0d3372ce9f *man/LD.thin.Rd
+5799fa2359a534ad45a3ea2ccfc31dcc *man/LD.thin.Rd
 bfdf4d416e958b882960e64f66c72572 *man/SNP.duplicated.Rd
 50a1801e1fc1b280c7499c1e648c0a4a *man/SNP.match.Rd
 451061d237e5bb0f6446f050d867c512 *man/SNP.rm.duplicates.Rd
@@ -154,7 +154,7 @@ b2dfc0542b5649250006e624fac532a0 *src/gwas_logit_wald.cpp
 958d0d9054228e7698bc571b1b3f365a *src/hwe.cpp
 96471f89c4b79cb7d7de773a12233920 *src/hwe_chi.cpp
 2b39e959a989f84c56318ba1897b7229 *src/isnullptr.cpp
-2bbd11457af374b26f149cdaa17acd46 *src/ld_clump.cpp
+7709741d6dbcb312767e282b0b4e58b6 *src/ld_clump.cpp
 6eb6f2898faeab0a9718cdf28346d430 *src/lmm_diago_fit.cpp
 b1d6e3d9acc7b064ba6b6e7f131b7ddd *src/lmm_diago_full_likelihood.cpp
 6d0694708a7f019dbc44b41eefe3d411 *src/lmm_diago_likelihood.cpp
@@ -192,5 +192,6 @@ b0c288b8ea7c21ca08cab3282254f871 *src/matrix4.cpp
 11fed7ef63b7ff075d687ac62348deb3 *src/re_likelihood.cpp
 d7c1ad0f93bd4862a93e108d01807a1a *src/snp_duplicated.cpp
 d1354117802d278f05c2bf9f762285ad *src/snp_match.cpp
+6623a1f2fd9632cd3340ea7b503e2401 *vignettes/PCA_for_the_faq.r
 4d542759e550698058cc34da09fd584b *vignettes/gaston-faq.Rnw
 052ec2b0f5c7dd115cbae9ae2252940d *vignettes/gaston.Rnw
