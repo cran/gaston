@@ -18,6 +18,43 @@ opts_chunk$set(prompt=TRUE, continue = " ");
 require(gaston)
 desc <- packageDescription("gaston")
 
+## ----eval=FALSE-------------------------------------------------------------------------
+#  data(AGT)
+#  
+#  x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
+#  
+#  # Compute LD
+#  ld.x <- LD(x, c(1,ncol(x)))
+#  
+#  # a color scheme
+#  cs <- function(ld) rgb(1, 1 - abs(ld), 1 - abs(ld))
+#  
+#  # opening pdf file
+#  pdf("example-plot.pdf", width = 6, height = 4)
+#  
+#  # a layout to divide the plot in two
+#  layout( matrix(1:2, nrow = 1), widths = c(8,1) )
+#  
+#  # plotting the LD
+#  LD.plot( ld.x[1:20,1:20], snp.positions = x@snps$pos[1:20],
+#           polygon.par = list(border = 1, lwd = .4), color.scheme = cs,
+#           write.ld = NULL )
+#  
+#  # plotting the colour scale
+#  plot.new()
+#  m <- 0.2 # margin
+#  par(usr = c(-m, 2+m, -m, 1+m))
+#  
+#  s <- 0.1
+#  S <- seq(0, 1-s, by = s)
+#  for(i in S) {
+#    polygon( c(0,0,1,1), c(i,i+s,i+s,i), col = cs(i+s), border = cs(i+s) )
+#    text(1.5, i + s/2, labels = sprintf("%.1f", i + s), cex = 0.5)
+#  }
+#  
+#  # closing pdf file
+#  dev.off()
+
 ## ----fig.mar=TRUE, fig.width=14, fig.height = 7, out.width='0.55\\textwidth'------------
 x <- as.bed.matrix(AGT.gen, AGT.fam, AGT.bim)
 standardize(x) <- "p"  # needed for matrix product below
